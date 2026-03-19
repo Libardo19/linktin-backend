@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: linktin-postgres
+    environment:
+      POSTGRES_DB: linktin_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d linktin_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: linktin-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: linktin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: linktin123
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: linktin-backend
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:1234@postgres:5432/linktin_db
+      DIRECT_URL: postgresql://postgres:1234@postgres:5432/linktin_db
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./.env:/app/.env
+      - ./nodemon.json:/app/nodemon.json
+      - ./package.json:/app/package.json
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  pgadmin_data:
