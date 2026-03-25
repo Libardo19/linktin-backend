@@ -1,6 +1,6 @@
 # 🔗 Linktin — Backend
 
-> REST API for the professional networking platform that connects people with projects through intelligent skill-based matching.
+> REST API for the professional networking platform that bridges the gap between companies seeking talent and professionals seeking opportunities.
 
 Built with **Node.js + Express** following a **Monolithic 4-Layer Architecture** (routes → controllers → services → models). Includes real-time chat via **Socket.io**, JWT authentication, compatibility matching engine, and database management with **Prisma ORM** over **PostgreSQL**.
 
@@ -8,7 +8,7 @@ Built with **Node.js + Express** following a **Monolithic 4-Layer Architecture**
 
 ## 📋 About the Project
 
-Linktin is a professional networking platform that combines the depth of LinkedIn profiles with the dynamic matching experience of Tinder. Users create professional profiles with their skills, publish projects that need collaborators, and receive automatic compatibility recommendations ordered by percentage match.
+Linktin is a professional networking platform that connects companies looking for the right talent with professionals and students looking for their next opportunity. Through a skill-based matching engine, the platform automatically calculates compatibility between what a company needs and what a professional offers, eliminating manual searching and putting the right person in front of the right opportunity.
 
 The backend handles all server-side logic: secure authentication, profile and project management, the matching engine, real-time messaging, and a reputation system between collaborators. All data is persisted in **PostgreSQL** through **Prisma ORM**, and the entire environment runs with a single command via **Docker Compose**.
 
@@ -40,4 +40,4 @@ The backend handles all server-side logic: secure authentication, profile and pr
 
 ---
 
-*Frontend repository → https://github.com/Libardo19/linktin-fronted
+*Frontend repository → [https://github.com/Libardo19/linktin-fronted*
