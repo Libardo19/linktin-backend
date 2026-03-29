@@ -3,6 +3,7 @@ const cors           = require("cors");
 const authRoutes     = require("./routes/auth.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
 const candidatoRoutes = require("./routes/candidato.routes"); 
+const empresaRoutes = require("./routes/empresa.routes");
 const app = express();
 
 // ─── Middlewares globales ──────────────────────────────
@@ -12,6 +13,7 @@ app.use(express.json());
 // ─── Rutas ────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
 app.use("/api/candidatos", candidatoRoutes);
+app.use("/api/empresas", empresaRoutes);
 // ─── Ruta de salud ────────────────────────────────────
 app.get("/health", (req, res) =>
   res.json({ status: "ok", timestamp: new Date().toISOString() })
