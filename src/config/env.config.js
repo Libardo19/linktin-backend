@@ -8,6 +8,8 @@ const required = [
 ];
 
 required.forEach((key) => {
+
+  console.log(key, "=", process.env[key]);
   if (!process.env[key]) {
     console.error(`Variable de entorno faltante: ${key}`);
     process.exit(1);
