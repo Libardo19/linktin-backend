@@ -1,4 +1,5 @@
     const CandidatoModel = require("../models/candidato.model");
+    const HabilidadModel = require("../models/habilidad.model");
 
         const verificarPropietario = async (id_candidato, usuarioToken) => {
             const candidato = await CandidatoModel.findById(id_candidato);
@@ -84,8 +85,21 @@
         // ── Habilidades ──────────────────────────────────────────────────────────────
         const addHabilidad = async (id_candidato, usuarioToken, body) => {
             await verificarPropietario(id_candidato, usuarioToken);
-            return CandidatoModel.addHabilidad({ id_candidato, ...body });
-            };
+
+            const { nombre, categoria, nivel } = body;
+
+            // Buscar en el catálogo, crear si no existe
+            let habilidad = await HabilidadModel.findByNombre(nombre);
+            if (!habilidad) {
+                habilidad = await HabilidadModel.create({ nombre, categoria });
+            }
+
+            return CandidatoModel.addHabilidad({
+                id_candidato,
+                id_habilidades: habilidad.id_habilidades,
+                nivel,
+            });
+};
 
         const updateHabilidad = async (id_candidato, id_habiEmpleados, usuarioToken, { nivel }) => {
             await verificarPropietario(id_candidato, usuarioToken);

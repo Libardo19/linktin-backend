@@ -2,6 +2,7 @@ const express        = require("express");
 const cors           = require("cors");
 const authRoutes     = require("./routes/auth.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
+const habilidadRoutes = require("./routes/habilidad.routes");
 const candidatoRoutes = require("./routes/candidato.routes"); 
 const empresaRoutes = require("./routes/empresa.routes");
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json());
 
 // ─── Rutas ────────────────────────────────────────────
 app.use("/api/auth", authRoutes);
+app.use("/api/habilidades", habilidadRoutes);
 app.use("/api/candidatos", candidatoRoutes);
 app.use("/api/empresas", empresaRoutes);
 // ─── Ruta de salud ────────────────────────────────────

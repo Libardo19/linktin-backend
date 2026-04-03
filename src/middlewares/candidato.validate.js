@@ -50,9 +50,10 @@ const Joi = require("joi");
     });
 
     const habilidadSchema = Joi.object({
-    id_habilidades: Joi.number().integer().required(),
+    nombre:         Joi.string().max(100).required(),
+    categoria:      Joi.string().max(100).optional(),
     nivel:          Joi.string().valid("basico", "intermedio", "avanzado").required(),
-    });
+});
 
     const updateNivelSchema = Joi.object({
     nivel: Joi.string().valid("basico", "intermedio", "avanzado").required(),
