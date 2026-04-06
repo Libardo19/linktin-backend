@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,8 +7,201 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  name  String
-  email String  @unique
+// ─── ENUMS ────────────────────────────────────────────────────────────
+
+enum TipoUsuario {
+  candidato
+  empresa
+  admin
+}
+
+enum NivelCandidato {
+  basico
+  intermedio
+  avanzado
+}
+
+enum EstadoOferta {
+  activa
+  cerrada
+  pausada
+}
+
+enum EstadoMatch {
+  pendiente
+  aceptado
+  rechazado
+}
+
+// ─── USUARIOS ─────────────────────────────────────────────────────────
+
+model Usuario {
+  id_usuarios    String      @id @db.VarChar(10)
+  email          String      @unique @db.VarChar(50)
+  password       String      @db.VarChar(255)
+  tipo           TipoUsuario
+  fecha_creacion DateTime    @default(now()) @db.Date
+  activo         Boolean     @default(true)
+
+  perfil_candidato PerfilCandidato?
+  perfil_empresa   PerfilEmpresa?
+  matches          Matches[]
+
+  @@map("usuarios")
+}
+
+// ─── PERFIL CANDIDATO ─────────────────────────────────────────────────
+
+model PerfilCandidato {
+  id_candidato     String    @id @db.VarChar(10)
+  id_usuarios      String    @unique @db.VarChar(10)
+  nombres          String    @db.VarChar(20)
+  apellidos        String    @db.VarChar(20)
+  fecha_nacimiento DateTime? @db.Date
+  genero           String?   @db.VarChar(15)
+  biografia        String?   @db.Text
+  foto_url         String?   @db.VarChar(255)
+  ubicacion        String?   @db.VarChar(100)
+  reputacion       Decimal?  @db.Decimal(3, 2)
+  portafolio_url   String?   @db.VarChar(255)
+  github_url       String?   @db.VarChar(255)
+  hoja_vida        String?   @db.VarChar(255)
+
+  usuario                Usuario               @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+  experiencia_candidatos ExperienciaCandidato[]
+  educacion_candidatos   EducacionCandidato[]
+  habilidadEmpleados     HabilidadEmpleado[]
+
+  @@map("perfil_candidatos")
+}
+
+// ─── EXPERIENCIA ──────────────────────────────────────────────────────
+
+model ExperienciaCandidato {
+  id_experiencia Int    @id @default(autoincrement())
+  id_candidato   String @db.VarChar(10)
+  empresa        String @db.VarChar(100)
+  cargo          String @db.VarChar(100)
+  anio_inicio    Int
+  anio_fin       Int?
+
+  candidato PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
+
+  @@map("experiencia_candidatos")
+}
+
+// ─── EDUCACIÓN ────────────────────────────────────────────────────────
+
+model EducacionCandidato {
+  id_educacion Int    @id @default(autoincrement())
+  id_candidato String @db.VarChar(10)
+  institucion  String @db.VarChar(150)
+  titulo       String @db.VarChar(150)
+  anio_inicio  Int
+  anio_fin     Int?
+
+  candidato PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
+
+  @@map("educacion_candidatos")
+}
+
+// ─── HABILIDADES ──────────────────────────────────────────────────────
+
+model Habilidades {
+  id_habilidades Int     @id @default(autoincrement())
+  nombre         String  @unique @db.VarChar(100)
+  categoria      String? @db.VarChar(100)
+
+  habilidades_empleado HabilidadEmpleado[]
+  habilidades_ofertas  HabilidadesOfertas[]
+
+  @@map("habilidades")
+}
+
+// ─── HABILIDADES CANDIDATO ────────────────────────────────────────────
+
+model HabilidadEmpleado {
+  id_habiEmpleados Int            @id @default(autoincrement())
+  id_candidato     String         @db.VarChar(10)
+  id_habilidades   Int
+  nivel            NivelCandidato
+
+  candidato PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
+  habilidad Habilidades     @relation(fields: [id_habilidades], references: [id_habilidades])
+
+  @@unique([id_candidato, id_habilidades])
+  @@map("habilidades_empleado")
+}
+
+// ─── PERFIL EMPRESA ───────────────────────────────────────────────────
+
+model PerfilEmpresa {
+  id_empresas Int     @id @default(autoincrement())
+  id_usuarios String  @unique @db.VarChar(10)
+  nombre      String  @db.VarChar(100)
+  descripcion String? @db.Text
+  logo_url    String? @db.VarChar(255)
+  sector      String? @db.VarChar(100)
+  ubicacion   String? @db.VarChar(100)
+  website     String? @db.VarChar(255)
+
+  usuario Usuario   @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+  ofertas Ofertas[]
+
+  @@map("perfil_empresas")
+}
+
+// ─── OFERTAS ──────────────────────────────────────────────────────────
+
+model Ofertas {
+  id_ofertas        Int          @id @default(autoincrement())
+  id_empresas       Int
+  titulo            String       @db.VarChar(200)
+  descripcion       String       @db.Text
+  direccion         String?      @db.VarChar(150)
+  modalidad         String       @db.VarChar(50)
+  pago              Decimal?     @db.Decimal(10, 2)
+  estado            EstadoOferta @default(activa)
+  fecha_publicacion DateTime     @default(now()) @db.Date
+  fecha_cierre      DateTime?    @db.Date
+
+  perfil_empresa      PerfilEmpresa        @relation(fields: [id_empresas], references: [id_empresas], onDelete: Cascade)
+  habilidades_ofertas HabilidadesOfertas[]
+  matches             Matches[]
+
+  @@map("ofertas")
+}
+
+// ─── HABILIDADES OFERTA ───────────────────────────────────────────────
+
+model HabilidadesOfertas {
+  id_habiOfertas Int     @id @default(autoincrement())
+  id_ofertas     Int
+  id_habilidades Int
+  nivelRequerido String  @db.VarChar(50)
+  obligatoria    Boolean @default(false)
+
+  oferta    Ofertas     @relation(fields: [id_ofertas],     references: [id_ofertas],     onDelete: Cascade)
+  habilidad Habilidades @relation(fields: [id_habilidades], references: [id_habilidades])
+
+  @@unique([id_ofertas, id_habilidades])
+  @@map("habilidades_ofertas")
+}
+
+// ─── MATCHES ──────────────────────────────────────────────────────────
+
+model Matches {
+  id_match       Int         @id @default(autoincrement())
+  id_usuarios    String      @db.VarChar(10)
+  id_ofertas     Int
+  compatibilidad Decimal     @db.Decimal(5, 2)
+  estadoUsuario  EstadoMatch @default(pendiente)
+  estadoEmpresa  EstadoMatch @default(pendiente)
+  fechaMatch     DateTime    @default(now())
+
+  usuario Usuario @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+  oferta  Ofertas @relation(fields: [id_ofertas],  references: [id_ofertas],  onDelete: Cascade)
+
+  @@unique([id_usuarios, id_ofertas])
+  @@map("matches")
 }

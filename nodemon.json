@@ -1,6 +1,11 @@
-    {
+{
     "watch": ["src"],
     "ext": "js,json",
-    "ignore": ["node_modules"],
-    "exec": "node src/index.js"
-    }
+    "ignore": [
+        "node_modules",
+        "src/**/*.test.js",
+        "prisma"
+    ],
+    "exec": "node src/server.js",
+    "delay": "1000"
+}
