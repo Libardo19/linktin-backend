@@ -1,23 +1,28 @@
-const express        = require("express");
-const cors           = require("cors");
-const authRoutes     = require("./routes/auth.routes");
+const express         = require("express");
+const cors            = require("cors");
+const authRoutes      = require("./routes/auth.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
 const habilidadRoutes = require("./routes/habilidad.routes");
 const ofertaRoutes    = require("./routes/oferta.routes");
-const candidatoRoutes = require("./routes/candidato.routes"); 
-const empresaRoutes = require("./routes/empresa.routes");
+const candidatoRoutes = require("./routes/candidato.routes");
+const empresaRoutes   = require("./routes/empresa.routes");
+
 const app = express();
 
 // ─── Middlewares globales ──────────────────────────────
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+}));
 app.use(express.json());
 
 // ─── Rutas ────────────────────────────────────────────
-app.use("/api/auth", authRoutes);
+app.use("/api/auth",        authRoutes);
 app.use("/api/habilidades", habilidadRoutes);
-app.use("/api/candidatos", candidatoRoutes);
-app.use("/api/empresas", empresaRoutes);
-app.use("/api/ofertas", ofertaRoutes);
+app.use("/api/candidatos",  candidatoRoutes);
+app.use("/api/empresas",    empresaRoutes);
+app.use("/api/ofertas",     ofertaRoutes);
+
 // ─── Ruta de salud ────────────────────────────────────
 app.get("/health", (req, res) =>
   res.json({ status: "ok", timestamp: new Date().toISOString() })
