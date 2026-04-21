@@ -1,54 +1,68 @@
-    const EmpresaModel = require("../models/empresa.model");
+const EmpresaModel = require("../models/empresa.model");
+const SectorService = require("./sector.service");
 
-    const verificarPropietario = (empresa, usuarioToken) => {
-    const esAdmin     = usuarioToken.tipo === "admin";
-    const esPropietario = empresa.id_usuarios === usuarioToken.id;
-        if (!esAdmin && !esPropietario) {
-            throw { status: 403, message: "No tienes permiso para realizar esta acción" };
-        }
-    };
+// ─── Guard ────────────────────────────────────────────────────────────
+const verificarPropietario = (empresa, usuarioToken) => {
+    if (usuarioToken.tipo !== "admin" && empresa.id_usuarios !== usuarioToken.id)
+    throw { status: 403, message: "No tienes permiso para realizar esta acción" };
+};
 
-    const getAll = async () => {
-        return EmpresaModel.findAll();
-    };
+// ─── Helper: resuelve sector si viene en el body ───────────────────────
+const resolverSector = async (sectorBody) => {
+    if (!sectorBody) return {};
+    const sector = await SectorService.findOrCreate(sectorBody);
+    return { id_sector: sector.id_sector };
+};
 
-    const getById = async (id_empresas) => {
+// ─── Servicios ────────────────────────────────────────────────────────
+
+const getAll = async () => EmpresaModel.findAll();
+
+const getById = async (id_empresas) => {
     const empresa = await EmpresaModel.findById(id_empresas);
-        if (!empresa) throw { status: 404, message: "Empresa no encontrada" };
-            return empresa;
-    };
+    if (!empresa) throw { status: 404, message: "Empresa no encontrada" };
+    return empresa;
+};
 
-    const getMiPerfil = async (id_usuarios) => {
-    const empresa = await EmpresaModel.findByUsuario(id_usuarios);
-        if (!empresa) throw { status: 404, message: "Aún no tienes un perfil de empresa" };
-        return empresa;
-    };
+const getMiPerfil = async (id_usuarios) => {
+    const empresa = await EmpresaModel.findByUsuarioId(id_usuarios);
+    if (!empresa) throw { status: 404, message: "Aún no tienes un perfil de empresa" };
+    return empresa;
+};
 
-    const create = async (data, usuarioToken) => {
-        if (usuarioToken.tipo !== "empresa") {
-            throw { status: 403, message: "Solo las empresas pueden crear un perfil de empresa" };
-    }
-    const existe = await EmpresaModel.findByUsuario(usuarioToken.id);
-        if (existe) throw { status: 409, message: "Ya tienes un perfil de empresa registrado" };
+const create = async (body, usuarioToken) => {
+    if (usuarioToken.tipo !== "empresa")
+        throw { status: 403, message: "Solo las empresas pueden crear un perfil de empresa" };
+
+    const existe = await EmpresaModel.findByUsuarioId(usuarioToken.id);
+    if (existe) throw { status: 409, message: "Ya tienes un perfil de empresa registrado" };
+
+    const { sector, ...resto } = body;
+    const sectorData = await resolverSector(sector);
 
     return EmpresaModel.createEmpresa({
         id_usuarios: usuarioToken.id,
-        ...data,
+        ...resto,
+        ...sectorData,
     });
-    };
+};
 
-    const update = async (id_empresas, data, usuarioToken) => {
+const update = async (id_empresas, body, usuarioToken) => {
     const empresa = await EmpresaModel.findById(id_empresas);
-        if (!empresa) throw { status: 404, message: "Empresa no encontrada" };
-        verificarPropietario(empresa, usuarioToken);
-        return EmpresaModel.updateEmpresa(id_empresas, data);
-    };
+    if (!empresa) throw { status: 404, message: "Empresa no encontrada" };
+    verificarPropietario(empresa, usuarioToken);
 
-    const remove = async (id_empresas, usuarioToken) => {
+    const { sector, ...resto } = body;
+    const sectorData = await resolverSector(sector);
+
+    return EmpresaModel.updateEmpresa(id_empresas, { ...resto, ...sectorData });
+};
+
+const remove = async (id_empresas, usuarioToken) => {
     const empresa = await EmpresaModel.findById(id_empresas);
-        if (!empresa) throw { status: 404, message: "Empresa no encontrada" };
-        verificarPropietario(empresa, usuarioToken);
-        await EmpresaModel.deleteEmpresa(id_empresas);
-    };
+    if (!empresa) throw { status: 404, message: "Empresa no encontrada" };
+    verificarPropietario(empresa, usuarioToken);
+    await EmpresaModel.deleteEmpresa(id_empresas);
+};
 
-    module.exports = { getAll, getById, getMiPerfil, create, update, remove };
+module.exports = { getAll, getById, getMiPerfil, create, update, remove };

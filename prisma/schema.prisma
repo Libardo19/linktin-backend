@@ -138,17 +138,28 @@ model HabilidadEmpleado {
 model PerfilEmpresa {
   id_empresas Int     @id @default(autoincrement())
   id_usuarios String  @unique @db.VarChar(10)
+  id_sector   Int?    @unique                          
   nombre      String  @db.VarChar(100)
   descripcion String? @db.Text
   logo_url    String? @db.VarChar(255)
-  sector      String? @db.VarChar(100)
   ubicacion   String? @db.VarChar(100)
   website     String? @db.VarChar(255)
 
-  usuario Usuario   @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+  usuario Usuario  @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+  sector  Sectores? @relation(fields: [id_sector],   references: [id_sector])
   ofertas Ofertas[]
 
   @@map("perfil_empresas")
+}
+
+model Sectores {
+  id_sector   Int     @id @default(autoincrement())
+  nombre      String  @unique @db.VarChar(100)
+  descripcion String? @db.Text
+
+  empresas PerfilEmpresa[]
+
+  @@map("sectores")
 }
 
 // ─── OFERTAS ──────────────────────────────────────────────────────────
