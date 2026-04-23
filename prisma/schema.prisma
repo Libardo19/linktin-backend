@@ -33,6 +33,15 @@ enum EstadoMatch {
   rechazado
 }
 
+enum TipoNotificacion {
+  nuevo_match
+  mensaje_recibido
+  match_aceptado
+  match_rechazado
+  nueva_oferta
+  resena_recibida
+}
+
 // ─── USUARIOS ─────────────────────────────────────────────────────────
 
 model Usuario {
@@ -43,9 +52,13 @@ model Usuario {
   fecha_creacion DateTime    @default(now()) @db.Date
   activo         Boolean     @default(true)
 
-  perfil_candidato PerfilCandidato?
-  perfil_empresa   PerfilEmpresa?
-  matches          Matches[]
+  perfil_candidato   PerfilCandidato?
+  perfil_empresa     PerfilEmpresa?
+  matches            Matches[]
+  mensajes           Mensajes[]
+  notificaciones     Notificaciones[]
+  resenas_enviadas   Resenas[] @relation("resenas_enviadas")
+  resenas_recibidas  Resenas[] @relation("resenas_recibidas")
 
   @@map("usuarios")
 }
@@ -138,28 +151,17 @@ model HabilidadEmpleado {
 model PerfilEmpresa {
   id_empresas Int     @id @default(autoincrement())
   id_usuarios String  @unique @db.VarChar(10)
-  id_sector   Int?    @unique                          
   nombre      String  @db.VarChar(100)
   descripcion String? @db.Text
   logo_url    String? @db.VarChar(255)
+  sector      String? @db.VarChar(100)
   ubicacion   String? @db.VarChar(100)
   website     String? @db.VarChar(255)
 
-  usuario Usuario  @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
-  sector  Sectores? @relation(fields: [id_sector],   references: [id_sector])
+  usuario Usuario   @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
   ofertas Ofertas[]
 
   @@map("perfil_empresas")
-}
-
-model Sectores {
-  id_sector   Int     @id @default(autoincrement())
-  nombre      String  @unique @db.VarChar(100)
-  descripcion String? @db.Text
-
-  empresas PerfilEmpresa[]
-
-  @@map("sectores")
 }
 
 // ─── OFERTAS ──────────────────────────────────────────────────────────
@@ -209,10 +211,66 @@ model Matches {
   estadoUsuario  EstadoMatch @default(pendiente)
   estadoEmpresa  EstadoMatch @default(pendiente)
   fechaMatch     DateTime    @default(now())
+  cv_url         String?     @db.VarChar(255)  // CV al momento del like
 
-  usuario Usuario @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
-  oferta  Ofertas @relation(fields: [id_ofertas],  references: [id_ofertas],  onDelete: Cascade)
+  usuario  Usuario    @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+  oferta   Ofertas    @relation(fields: [id_ofertas],  references: [id_ofertas],  onDelete: Cascade)
+  mensajes Mensajes[]
+  resenas  Resenas[]
 
   @@unique([id_usuarios, id_ofertas])
   @@map("matches")
 }
+
+// ─── MENSAJES ─────────────────────────────────────────────────────────
+
+model Mensajes {
+  id_mensajes Int      @id @default(autoincrement())
+  id_match    Int
+  id_usuario  String   @db.VarChar(10)
+  contenido   String   @db.Text
+  fecha_envio DateTime @default(now())
+  leido       Boolean  @default(false)
+
+  match   Matches @relation(fields: [id_match],   references: [id_match],   onDelete: Cascade)
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuarios], onDelete: Cascade)
+
+  @@index([id_match, fecha_envio])
+  @@map("mensajes")
+}
+
+// ─── NOTIFICACIONES ───────────────────────────────────────────────────
+
+model Notificaciones {
+  id_notificaciones Int              @id @default(autoincrement())
+  id_usuario        String           @db.VarChar(10)
+  tipo              TipoNotificacion
+  payload           Json
+  leido             Boolean          @default(false)
+  fecha_creacion    DateTime         @default(now())
+
+  usuario Usuario @relation(fields: [id_usuario], references: [id_usuarios], onDelete: Cascade)
+
+  @@index([id_usuario, leido])
+  @@map("notificaciones")
+}
+
+// ─── RESEÑAS ──────────────────────────────────────────────────────────
+
+model Resenas {
+  id_resena   Int      @id @default(autoincrement())
+  id_enviado  String   @db.VarChar(10)
+  id_recibido String   @db.VarChar(10)
+  id_match    Int
+  raiting     Decimal  @db.Decimal(2, 1)
+  comentario  String?  @db.Text
+  fecha_envio DateTime @default(now())
+
+  autor    Usuario @relation("resenas_enviadas",  fields: [id_enviado],  references: [id_usuarios])
+  receptor Usuario @relation("resenas_recibidas", fields: [id_recibido], references: [id_usuarios])
+  match    Matches @relation(fields: [id_match], references: [id_match])
+
+  @@unique([id_enviado, id_match])
+  @@map("resenas")
+}
+
