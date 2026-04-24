@@ -35,11 +35,12 @@ enum EstadoMatch {
 
 enum TipoNotificacion {
   nuevo_match
-  mensaje_recibido
   match_aceptado
   match_rechazado
-  nueva_oferta
+  match_retirado
+  oferta_cerrada    
   resena_recibida
+  mensaje_recibido  //Por ahora
 }
 
 // ─── USUARIOS ─────────────────────────────────────────────────────────
