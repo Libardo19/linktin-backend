@@ -1,7 +1,7 @@
 const MatchingModel =     require("../models/matching.model");
 const EmpresaModel =      require("../models/empresa.model");
 const { calcularScore } = require("../utils/score.helper");
-const { usuario } = require("../config/db.config");
+const { notificar } =     require("../utils/notification.helper");
 
 // Guards
 
@@ -82,12 +82,21 @@ const darLike = async (usuarioToken, id_ofertas) => {
   );
 
   //5. Crear el match - adjuntar cv_url del perfil del candidato
-  return MatchingModel.createMatch({
+  const match = await MatchingModel.createMatch({
     id_usuarios: usuarioToken.id,
-    id_ofertas: parseInt(id_ofertas),
+    id_ofertas:  parseInt(id_ofertas),
     compatibilidad,
-    cv_url: candidato.hoja_vida || null,
+    cv_url:      candidato.hoja_vida || null,
   });
+
+  notificar.nuevoMatch({
+    id_empresa: oferta.perfil_empresa.id_usuarios,
+    candidato:  `${candidato.nombres} ${candidato.apellidos}`,
+    oferta:     oferta.titulo,
+    matchId:    match.id_match,
+  }).catch(console.error);
+
+  return match;
 };
 
 //Feeds
@@ -145,12 +154,31 @@ const responerEmpresa = async (usuarioToken, id_match, accion) => {
   if (match.estadoEmpresa !== "pendiente")
     throw { status: 400, message: `Ya has respondido a este match: ${match.estadoEmpresa}.` };
 
-  return MatchingModel.updateEstado(
+  const resultado = await MatchingModel.updateEstado(
     parseInt(id_match),
     "estadoEmpresa",
     accion,
     MatchingModel.MATCH_EMPRESA
   );
+
+  const empresa = resultado.oferta?.perfil_empresa?.nombre || "La empresa";
+  const oferta  = resultado.oferta?.titulo || "la oferta";
+
+  if (accion === "aceptado") {
+    notificar.matchAceptado({
+      id_candidato: match.id_usuarios,
+      empresa, oferta,
+      matchId: parseInt(id_match),
+    }).catch(console.error);
+  } else {
+    notificar.matchRechazado({
+      id_candidato: match.id_usuarios,
+      empresa, oferta,
+      matchId: parseInt(id_match),
+    }).catch(console.error);
+  }
+
+  return resultado;
 };
 
 /**
@@ -169,12 +197,21 @@ const retirarLike = async (usuarioToken, id_match) => {
   if (match.estadoEmpresa === "aceptado")
     throw { status: 409, message: "No puedes retirara una postulaciones ya aceptada por la empresa" };
 
-  return MatchingModel.updateEstado(
+  const resultado = await MatchingModel.updateEstado(
     parseInt(id_match),
     "estadoEmpresa",
     "rechazado",
     MatchingModel.MATCH_CANIDATO
   );
+
+  notificar.matchRetirado({
+    id_empresa: match.oferta?.perfil_empresa?.id_usuarios,
+    candidato:  usuarioToken.id,
+    oferta:     match.oferta?.titulo || "la oferta",
+    matchId:    parseInt(id_match),
+  }).catch(console.error);
+  
+  return resultado;
 };
 
 module.exports = {

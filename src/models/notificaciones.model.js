@@ -1,7 +1,11 @@
 const prisma = require('../config/db.config');
 
 // Trae las notificaciones de un usuario paginadas, solo las no leídas
-const findByUsuario = async (id_usuario, { page = 1, limit = 20, soloNoLeidas = false } = {}) => prisma.notificaciones.findMany({
+const findByUsuario = async (id_usuario, { 
+  page = 1, 
+  limit = 20, 
+  soloNoLeidas = false } = {}) => 
+    prisma.notificaciones.findMany({
   where: {
     id_usuario,
     ...(soloNoLeidas && { leido: false }),

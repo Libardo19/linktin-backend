@@ -23,6 +23,7 @@ app.use("/api/empresas",    empresaRoutes);
 app.use("/api/sectores",    sectorRoutes);
 app.use("/api/matches",     matchingRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
+
 app.get("/health", (req, res) =>
   res.json({ status: "ok", timestamp: new Date().toISOString() })
 );
