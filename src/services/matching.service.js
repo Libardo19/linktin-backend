@@ -1,7 +1,7 @@
 const MatchingModel =     require("../models/matching.model");
 const EmpresaModel =      require("../models/empresa.model");
 const { calcularScore } = require("../utils/score.helper");
-const { notificar } =     require("../utils/notification.helper");
+const { notificar } =     require("../utils/notificaciones.helper");
 
 // Guards
 

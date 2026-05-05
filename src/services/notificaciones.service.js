@@ -1,5 +1,5 @@
 const { parse } = require('dotenv');
-const NotificacionModel = require('../models/notificacion.model');
+const NotificacionModel = require('../models/notificaciones.model');
 
 // mis notificaciones
 const getMisNotificaciones = async (usuarioToken, query) => {

@@ -35,3 +35,10 @@ const limpiarLeidas = async (req, res, next) => {
     next(error);
   }
 }
+
+module.exports = {
+  getMisNotificaciones,
+  marcarLeida,
+  marcarTodasLeidas,
+  limpiarLeidas,
+}
