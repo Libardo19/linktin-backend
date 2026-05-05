@@ -5,7 +5,7 @@ const OFERTA_BASICA = {
     id_ofertas:       true,
     titulo:           true,
     modalidad:        true,
-    ubicacion:        true,
+    ubicacion:        true, 
     pago:             true,
     estado:           true,
     fecha_publicacion: true,
@@ -95,4 +95,19 @@ const remove = async (id_ofertas) =>
 const cambiarEstado = async (id_ofertas, estado) =>
     prisma.ofertas.update({ where: { id_ofertas }, data: { estado }, select: OFERTA_BASICA });
 
-module.exports = { findAll, findById, findByEmpresa, create, update, remove, cambiarEstado };
+const findIdsCandidatos = async () => {
+    const candidatos = await prisma.perfilCandidato.findMany({
+    select: { id_usuarios: true },
+    });
+    return candidatos.map((c) => c.id_usuarios);
+};
+
+const findIdsCandidatosPendientes = async (id_ofertas) => {
+    const matches = await prisma.matches.findMany({
+    where:  { id_ofertas, estadoEmpresa: "pendiente" },
+    select: { id_usuarios: true },
+    });
+    return matches.map((m) => m.id_usuarios);
+};
+
+module.exports = { findAll, findById, findByEmpresa, create, update, remove, cambiarEstado, findIdsCandidatos, findIdsCandidatosPendientes };

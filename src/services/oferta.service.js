@@ -40,9 +40,22 @@ const getMisOfertas = async (usuarioToken) => {
 // POST /api/ofertas
 const create = async (usuarioToken, body) => {
     soloEmpresa(usuarioToken);
+
     const empresa = await EmpresaModel.findByUsuario(usuarioToken.id);
+
     if (!empresa) throw { status: 404, message: "Debes tener un perfil de empresa antes de publicar ofertas" };
-    return OfertaModel.create({ id_empresas: empresa.id_empresas, ...body });
+
+    const oferta = await OfertaModel.create({ id_empresas: empresa.id_empresas, ...body });
+
+    OfertaModel.findIdsCandidatos().then((ids) =>
+        notificar.nuevaOferta(ids, {
+            empresa: empresa.nombre,
+            oferta: oferta.titulo,
+            ofertaId: oferta.id_ofertas,
+        })
+    ).catch(console.error);    
+
+    return oferta;
 };
 
 // PUT /api/ofertas/:id
@@ -61,8 +74,21 @@ const remove = async (usuarioToken, id) => {
 
 // PATCH /api/ofertas/:id/estado
 const cambiarEstado = async (usuarioToken, id, estado) => {
-    await verificarPropietario(parseInt(id), usuarioToken);
-    return OfertaModel.cambiarEstado(parseInt(id), estado);
-};
+    const oferta    = await verificarPropietario(parseInt(id), usuarioToken);
+    const resultado = await OfertaModel.cambiarEstado(parseInt(id), estado);
 
+    if (estado === "cerrada" || estado === "pausada") {
+    OfertaModel.findIdsCandidatosPendientes(parseInt(id))
+        .then((ids) => {
+        if (ids.length)
+            return notificar.ofertaCerrada(ids, {
+            empresa:  oferta.perfil_empresa?.nombre || "La empresa",
+            oferta:   oferta.titulo,
+            ofertaId: parseInt(id),
+            });
+        }).catch(console.error);
+    }
+
+    return resultado;
+};
 module.exports = { getAll, getById, getMisOfertas, create, update, remove, cambiarEstado };
