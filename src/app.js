@@ -8,6 +8,7 @@ const empresaRoutes   = require("./routes/empresa.routes");
 const sectorRoutes    = require("./routes/sector.routes");
 const matchingRoutes   = require("./routes/matching.routes");
 const notificacionesRoutes   = require("./routes/notificaciones.routes");
+const adminRoutes      = require("./routes/admin.routes");
 const errorMiddleware = require("./middlewares/error.middleware");
 
 const app = express();
@@ -23,6 +24,7 @@ app.use("/api/empresas",    empresaRoutes);
 app.use("/api/sectores",    sectorRoutes);
 app.use("/api/matches",     matchingRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
+app.use("/api/admin",          adminRoutes);
 
 app.get("/health", (req, res) =>
   res.json({ status: "ok", timestamp: new Date().toISOString() })

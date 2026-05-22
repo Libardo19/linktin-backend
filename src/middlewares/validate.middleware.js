@@ -56,10 +56,10 @@ const registerSchema = Joi.object({
     }),
 
   tipo: Joi.string()
-    .valid("candidato", "empresa")  // admin solo se asigna manualmente en DB
+    .valid("candidato", "empresa", "admin")  // admin solo se asigna manualmente en DB
     .required()
     .messages({
-      "any.only":     "El tipo debe ser 'candidato' o 'empresa'",
+      "any.only":     "El tipo debe ser 'candidato', 'empresa'",
       "any.required": "El tipo de usuario es obligatorio",
     }),
 });
