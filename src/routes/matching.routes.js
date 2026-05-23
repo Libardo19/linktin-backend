@@ -4,6 +4,8 @@ const auth = require('../middlewares/auth.middleware');
 
 const router = Router();
 
+router.use(auth);
+
 // Candidato
 router.post("/like/:ofertaId", ctrl.darLike);
 router.patch("/:id/retirar", ctrl.retirarLike);

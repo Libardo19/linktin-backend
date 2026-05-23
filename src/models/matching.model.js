@@ -68,10 +68,10 @@ const MATCH_EMPRESA = {
 }; 
 
 // Queries comunes
-const findCandidatoConHabilidades = async (id_usuario) => 
+const findCandidatoConHabilidades = async (id_usuarios) => 
   prisma.perfil_candidato.findUnique({
   where: {
-    id_usuario
+    id_usuarios: id_usuarios
   },
   include: {
     habilidadEmpleados: {
