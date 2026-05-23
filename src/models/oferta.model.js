@@ -5,7 +5,7 @@ const OFERTA_BASICA = {
     id_ofertas:       true,
     titulo:           true,
     modalidad:        true,
-    ubicacion:        true, 
+    direccion:       true, 
     pago:             true,
     estado:           true,
     fecha_publicacion: true,

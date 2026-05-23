@@ -16,12 +16,12 @@ const login = async (req, res, next) => {
 
 /**
  * POST /api/auth/register
- * Body: { id_usuarios, email, password, tipo }
+ * Body: { email, password, tipo, ...profileData }
  */
 const register = async (req, res, next) => {
   try {
-    const { id_usuarios, email, password, tipo } = req.body;
-    const result = await AuthService.register({ id_usuarios, email, password, tipo });
+    const { email, password, tipo, ...profileData } = req.body;
+    const result = await AuthService.register({ email, password, tipo, profileData });
     res.status(201).json({ success: true, data: result });
   } catch (err) {
     next(err);

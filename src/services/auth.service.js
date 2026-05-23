@@ -1,6 +1,8 @@
-const bcrypt  = require("bcryptjs");
-const jwt     = require("jsonwebtoken");
+const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
+const jwt    = require("jsonwebtoken");
 const { jwt: jwtConfig } = require("../config/env.config");
+const prisma = require("../config/db.config");
 const AuthModel = require("../models/auth.model");
 
 // ─── Helpers ──────────────────────────────────────────
@@ -49,9 +51,12 @@ const login = async ({ email, password }) => {
 
 // ─── Register ─────────────────────────────────────────
 
-const register = async ({ id_usuarios, email, password, tipo }) => {
+const register = async ({ email, password, tipo, profileData }) => {
 
-  // 1. Verificar que el email no esté en uso
+  // 1. Generar ID único de 10 caracteres
+  const id_usuarios = crypto.randomBytes(5).toString("hex");
+
+  // 2. Verificar que el email no esté en uso
   const existe = await AuthModel.findByEmail(email);
   if (existe) {
     throw { status: 409, message: "El email ya está registrado" };
@@ -68,10 +73,27 @@ const register = async ({ id_usuarios, email, password, tipo }) => {
     tipo,
   });
 
-  // 4. Generar JWT inmediatamente (login automático tras registro)
-  const token = generateToken(buildPayload(usuario));
+  // 4. Crear perfil según el tipo
+  if (tipo === "candidato") {
+    const id_candidato = crypto.randomBytes(5).toString("hex");
+    await prisma.perfilCandidato.create({
+      data: {
+        id_candidato,
+        id_usuarios,
+        nombres:   profileData?.nombre || "",
+        apellidos: profileData?.apellido || "",
+      },
+    });
+  } else if (tipo === "empresa") {
+    await prisma.perfilEmpresa.create({
+      data: {
+        id_usuarios,
+        nombre: `${profileData?.nombre || ""} ${profileData?.apellido || ""}`.trim() || "Pendiente",
+      },
+    });
+  }
 
-  return { token, usuario };
+  return { usuario };
 };
 
 module.exports = { login, register };

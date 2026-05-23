@@ -13,4 +13,4 @@ router.post("/register", validateRegister, AuthController.register);
 // Ruta protegida — verifica que el token sea válido
 router.get("/me", authMiddleware, AuthController.me);
 
-module.exports = router;
+module.exports = router;    

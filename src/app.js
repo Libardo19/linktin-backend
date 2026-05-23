@@ -13,16 +13,23 @@ const errorMiddleware = require("./middlewares/error.middleware");
 
 const app = express();
 
-app.use(cors());
+// ✅ CORS configurado antes de todo
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://172.20.10.2:3000'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}))
+
 app.use(express.json());
 
-app.use("/api/auth",        authRoutes);
-app.use("/api/candidatos",  candidatoRoutes);
-app.use("/api/habilidades", habilidadRoutes);
-app.use("/api/ofertas",     ofertaRoutes);
-app.use("/api/empresas",    empresaRoutes);
-app.use("/api/sectores",    sectorRoutes);
-app.use("/api/matches",     matchingRoutes);
+app.use("/api/auth",           authRoutes);
+app.use("/api/candidatos",     candidatoRoutes);
+app.use("/api/habilidades",    habilidadRoutes);
+app.use("/api/ofertas",        ofertaRoutes);
+app.use("/api/empresas",       empresaRoutes);
+app.use("/api/sectores",       sectorRoutes);
+app.use("/api/matches",        matchingRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
 app.use("/api/admin",          adminRoutes);
 

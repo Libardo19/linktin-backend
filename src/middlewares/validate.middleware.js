@@ -23,16 +23,6 @@ const loginSchema = Joi.object({
 });
 
 const registerSchema = Joi.object({
-  id_usuarios: Joi.string()
-    .alphanum()
-    .max(10)
-    .required()
-    .messages({
-      "string.alphanum": "El ID solo puede contener letras y números",
-      "string.max":      "El ID no puede superar 10 caracteres",
-      "any.required":    "El ID de usuario es obligatorio",
-    }),
-
   email: Joi.string()
     .email({ tlds: { allow: false } })
     .max(50)
