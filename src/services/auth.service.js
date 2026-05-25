@@ -5,7 +5,7 @@ const { jwt: jwtConfig } = require("../config/env.config");
 const prisma = require("../config/db.config");
 const AuthModel = require("../models/auth.model");
 
-// ─── Helpers ──────────────────────────────────────────
+// Helpers 
 const generateToken = (payload) =>
   jwt.sign(payload, jwtConfig.secret, { expiresIn: jwtConfig.expiresIn });
 
@@ -49,7 +49,7 @@ const login = async ({ email, password }) => {
   };
 };
 
-// ─── Register ─────────────────────────────────────────
+// Register 
 
 const register = async ({ email, password, tipo, profileData }) => {
 
