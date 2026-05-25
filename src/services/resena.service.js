@@ -1,3 +1,13 @@
+const ResenaModel   = require("../models/resena.model");
+const { notificar } = require("../utils/notificacion.helper");
+
+/**
+ * Reglas de negocio para crear una reseña:
+ * 1. El match debe ser efectivo (ambos aceptaron).
+ * 2. El autor debe pertenecer al match (candidato o empresa).
+ * 3. Solo se puede dejar una reseña por match.
+ * 4. No puedes reseñarte a ti mismo.
+ */
 const create = async (usuarioToken, { id_match, raiting, comentario }) => {
   const idMatch = parseInt(id_match);
 
@@ -41,4 +51,18 @@ const create = async (usuarioToken, { id_match, raiting, comentario }) => {
   }).catch(console.error);
 
   return resena;
+};
+
+// Reseñas recibidas por un usuario
+const getRecibidas = async (id_usuario) => 
+  ResenaModel.findRecibidasByUsuario(id_usuario);
+
+// Reseñas enviadas por un usuario
+const getMisResenas = async (usuarioToken) => 
+  ResenaModel.findEnviadasByUsuario(usuarioToken);
+
+module.exports = {
+  create,
+  getRecibidas,
+  getMisResenas
 };
