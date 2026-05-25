@@ -1,19 +1,20 @@
-const express         = require("express");
-const cors            = require("cors");
-const authRoutes      = require("./routes/auth.routes");
-const candidatoRoutes = require("./routes/candidato.routes");
-const habilidadRoutes = require("./routes/habilidad.routes");
-const ofertaRoutes    = require("./routes/oferta.routes");
-const empresaRoutes   = require("./routes/empresa.routes");
-const sectorRoutes    = require("./routes/sector.routes");
-const matchingRoutes   = require("./routes/matching.routes");
+const express                = require("express");
+const cors                   = require("cors");
+const authRoutes             = require("./routes/auth.routes");
+const candidatoRoutes        = require("./routes/candidato.routes");
+const habilidadRoutes        = require("./routes/habilidad.routes");
+const ofertaRoutes           = require("./routes/oferta.routes");
+const empresaRoutes          = require("./routes/empresa.routes");
+const sectorRoutes           = require("./routes/sector.routes");
+const matchingRoutes         = require("./routes/matching.routes");
 const notificacionesRoutes   = require("./routes/notificaciones.routes");
-const adminRoutes      = require("./routes/admin.routes");
-const errorMiddleware = require("./middlewares/error.middleware");
+const adminRoutes            = require("./routes/admin.routes");
+const resenaRoutes           = require("./routes/resena.routes");
+const errorMiddleware        = require("./middlewares/error.middleware");
 
 const app = express();
 
-// ✅ CORS configurado antes de todo
+// CORS configurado antes de todo
 app.use(cors({
   origin: ['http://localhost:3000', 'http://172.20.10.2:3000'],
   credentials: true,
@@ -31,6 +32,7 @@ app.use("/api/empresas",       empresaRoutes);
 app.use("/api/sectores",       sectorRoutes);
 app.use("/api/matches",        matchingRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
+app.use("/api/resenas",        resenaRoutes)
 app.use("/api/admin",          adminRoutes);
 
 app.get("/health", (req, res) =>
