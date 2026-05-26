@@ -1,9 +1,3 @@
-/**
- * score.helper.js
- * SRP: responsabilidad única — calcular compatibilidad.
- * OCP: para cambiar el algoritmo solo tocas este archivo.
- * Dependency Inversion: recibe datos puros, no depende de Prisma.
- */
 
 const NIVEL_VALOR = { basico: 1, intermedio: 2, avanzado: 3 };
 
@@ -16,9 +10,9 @@ const NIVEL_VALOR = { basico: 1, intermedio: 2, avanzado: 3 };
 const puntajeHabilidad = (nivelCandidato, nivelRequerido) => {
   if (!nivelCandidato) return 0;
   const diff = NIVEL_VALOR[nivelCandidato] - NIVEL_VALOR[nivelRequerido];
-  if (diff >= 0)  return 1.0;  // igual o superior
-  if (diff === -1) return 0.5;  // un nivel por debajo
-  return 0;                       // dos niveles o más por debajo
+  if (diff >= 0)  return 1.0;  
+  if (diff === -1) return 0.5;  
+  return 0;                       
 };
 
 /**
@@ -30,7 +24,6 @@ const puntajeHabilidad = (nivelCandidato, nivelRequerido) => {
 const calcularScore = (habilidadesCandidato, habilidadesOferta) => {
   if (!habilidadesOferta.length) return 0;
 
-  // Mapa rápido: nombre → nivel del candidato
   const mapaCandidate = new Map(
     habilidadesCandidato.map(({ habilidad, nivel }) => [habilidad.nombre, nivel])
   );
