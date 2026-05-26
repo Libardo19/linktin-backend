@@ -38,6 +38,7 @@ enum TipoNotificacion {
   match_aceptado
   match_rechazado
   match_retirado
+  nueva_oferta
   oferta_cerrada    
   resena_recibida
   mensaje_recibido  //Por ahora

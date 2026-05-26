@@ -48,7 +48,7 @@ const darLike = async (usuarioToken, id_ofertas) => {
       message: "Perfil incompleto: Crea tu perfil de candidato.",
     };
   }
-  if (!candidato.habilidades_candidatos.length) {
+  if (!candidato.habilidadEmpleados.length) {
     throw {
       status: 400,
       message: "Perfil incompleto: Agrega al menos una habilidad.",
@@ -77,7 +77,7 @@ const darLike = async (usuarioToken, id_ofertas) => {
 
   //4. Calcular score de compatibilidad
   const compatibilidad = calcularScore(
-    candidato.habilidadEmpleado,
+    candidato.habilidadEmpleados,
     oferta.habilidades_ofertas,
   );
 
@@ -146,7 +146,7 @@ const getMisMatches = async (usuarioToken) =>
  * Al rechazar devuelve el selector MATCH_EMPRESA también.
  */
 
-const responerEmpresa = async (usuarioToken, id_match, accion) => {
+const responderEmpresa = async (usuarioToken, id_match, accion) => {
   soloEmpresa(usuarioToken);
 
   const match = await MatchingModel.findMatchById(parseInt(id_match));
@@ -201,7 +201,7 @@ const retirarLike = async (usuarioToken, id_match) => {
     parseInt(id_match),
     "estadoEmpresa",
     "rechazado",
-    MatchingModel.MATCH_CANIDATO
+    MatchingModel.MATCH_CANDIDATO
   );
 
   notificar.matchRetirado({
@@ -219,7 +219,7 @@ module.exports = {
   getFeedCandidato,
   getFeedEmpresa,
   getMisMatches,
-  responerEmpresa,
+  responderEmpresa,
   retirarLike
 };
 

@@ -11,7 +11,9 @@ const OFERTA_BASICA = {
     fecha_publicacion: true,
     fecha_cierre:     true,
     perfil_empresa: {
-        select: { nombre: true, logo_url: true, sector: true, ubicacion: true },
+        select: { nombre: true, logo_url: true, ubicacion: true,
+            sector: { select: { nombre: true } },
+        },
     },
 };
 

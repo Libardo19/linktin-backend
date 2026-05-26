@@ -1,5 +1,6 @@
 const OfertaModel  = require("../models/oferta.model");
 const EmpresaModel = require("../models/empresa.model");
+const { notificar } = require("../utils/notificaciones.helper");
 
 // ─── Guards reutilizables (SRP) ───────────────────────────────────────
 
@@ -32,7 +33,7 @@ const getById = async (id) => verificarOferta(parseInt(id));
 // GET /api/ofertas/mis-ofertas — empresa ve sus propias ofertas
 const getMisOfertas = async (usuarioToken) => {
     soloEmpresa(usuarioToken);
-    const empresa = await EmpresaModel.findByUsuario(usuarioToken.id);
+    const empresa = await EmpresaModel.findByUsuarioId(usuarioToken.id);
     if (!empresa) throw { status: 404, message: "Perfil de empresa no encontrado" };
     return OfertaModel.findByEmpresa(empresa.id_empresas);
 };
@@ -41,7 +42,7 @@ const getMisOfertas = async (usuarioToken) => {
 const create = async (usuarioToken, body) => {
     soloEmpresa(usuarioToken);
 
-    const empresa = await EmpresaModel.findByUsuario(usuarioToken.id);
+    const empresa = await EmpresaModel.findByUsuarioId(usuarioToken.id);
 
     if (!empresa) throw { status: 404, message: "Debes tener un perfil de empresa antes de publicar ofertas" };
 

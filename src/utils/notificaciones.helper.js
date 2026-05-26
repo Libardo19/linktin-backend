@@ -1,4 +1,3 @@
-const { skip } = require('@prisma/client/runtime/library');
 const prisma = require('../config/db.config');
 
 const crear = (id_usuario, tipo, payload) => prisma.notificaciones.create({
@@ -16,23 +15,34 @@ const notificar = {
     }),
 
   //Empresa acepto, notificar a candidato
-  nuevoAceptado: ({id_empresa, candidato, oferta, matchId}) => 
-    crear(id_empresa, 'nuevo_aceptado', {
-      candidato, 
+  matchAceptado: ({id_candidato, empresa, oferta, matchId}) => 
+    crear(id_candidato, 'match_aceptado', {
+      empresa, 
       oferta,
       matchId,
     }),
 
   //Empresa rechazo, notificar a candidato
-  nuevoRechazado: ({id_empresa, candidato, oferta, matchId}) => 
-    crear(id_empresa, 'nuevo_rechazado', {
-      candidato, 
+  matchRechazado: ({id_candidato, empresa, oferta, matchId}) => 
+    crear(id_candidato, 'match_rechazado', {
+      empresa, 
       oferta,
       matchId,
     }),
 
+  //Cuando empresa crea una oferta, notificar a candidatos
+  nuevaOferta: (ids_candidatos, { empresa, oferta, ofertaId }) =>
+    prisma.notificaciones.createMany({
+      data: ids_candidatos.map((id_usuario) => ({
+        id_usuario,
+        tipo: 'nueva_oferta',
+        payload: { empresa, oferta, ofertaId },
+      })),
+      skipDuplicates: true,
+    }),
+
   //Oferta cerrada, notificar a candidatos que dieron like pero no fueron aceptados
-  ofertaCerrrada: (ids_candidatos, { empresa, oferta, ofertaId}) =>
+  ofertaCerrada: (ids_candidatos, { empresa, oferta, ofertaId}) =>
     prisma.notificaciones.createMany({
       data: ids_candidatos.map((id_usuario) => ({
         id_usuario,

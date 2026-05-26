@@ -39,11 +39,11 @@ const MATCH_EMPRESA = {
   cv_url:         true,
   usuario: {
     select: {
-      id_usuario:   true,
+      id_usuarios:   true,
       perfil_candidato: {
         select: {
-          nombre:         true,
-          apellido:       true,
+          nombres:         true,
+          apellidos:       true,
           foto_url:       true,
           ubicacion:      true,
           reputacion:     true,
@@ -100,6 +100,12 @@ const findOfertaConHabilidades = async (id_ofertas) =>
         },
       },
     },
+    perfil_empresa: {
+      select: {
+        id_usuarios: true,
+        nombre: true,
+      },
+    },
   },
 });
 
@@ -113,7 +119,7 @@ const findMatchExistente = async (id_usuarios, id_ofertas) =>
   },
 });
 
-const createMatch = async (id_usuarios, id_ofertas, compatibilidad, cv_url) => 
+const createMatch = async ({ id_usuarios, id_ofertas, compatibilidad, cv_url }) => 
   prisma.matches.create({
   data: {
     id_usuarios,

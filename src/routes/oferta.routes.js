@@ -11,10 +11,10 @@ const router = Router();
 
 // Público — candidatos pueden ver ofertas sin autenticarse
 router.get("/",    ctrl.getAll);
-router.get("/:id", ctrl.getById);
 
-// Protegidas
+// Protegidas — rutas específicas ANTES de rutas con parámetros
 router.get("/mis-ofertas",         auth, ctrl.getMisOfertas);
+router.get("/:id", ctrl.getById);
 router.post("/",                    auth, validateCreateOferta, ctrl.create);
 router.put("/:id",                 auth, validateUpdateOferta,  ctrl.update);
 router.delete("/:id",              auth, ctrl.remove);
