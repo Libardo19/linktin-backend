@@ -7,7 +7,7 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-// ─── ENUMS ────────────────────────────────────────────────────────────
+// ENUMS 
 
 enum TipoUsuario {
   candidato
@@ -43,6 +43,31 @@ enum TipoNotificacion {
   mensaje_recibido  //Por ahora
 }
 
+enum TipoEntidadReporte {
+  usuario
+  oferta
+  resena
+}
+
+enum MotivoReporte {
+  abuso
+  acoso
+  spam
+  contenido_inapropiado
+  lenguaje_ofensivo
+  oferta_falsa
+  informacion_incorrecta
+  suplantacion
+  otro
+}
+
+enum EstadoReporte {
+  pendiente
+  en_revision
+  resuelto
+  descartado
+}
+
 // ─── USUARIOS ─────────────────────────────────────────────────────────
 
 model Usuario {
@@ -60,6 +85,8 @@ model Usuario {
   notificaciones     Notificaciones[]
   resenas_enviadas   Resenas[] @relation("resenas_enviadas")
   resenas_recibidas  Resenas[] @relation("resenas_recibidas")
+  reportes_enviados  Reportes[] @relation("reportes_enviados")
+  reportes_recibidos Reportes[] @relation("reportes_recibidos")
 
   @@map("usuarios")
 }
@@ -193,6 +220,7 @@ model Ofertas {
   perfil_empresa      PerfilEmpresa        @relation(fields: [id_empresas], references: [id_empresas], onDelete: Cascade)
   habilidades_ofertas HabilidadesOfertas[]
   matches             Matches[]
+  reportes            Reportes[]
 
   @@map("ofertas")
 }
@@ -281,8 +309,35 @@ model Resenas {
   autor    Usuario @relation("resenas_enviadas",  fields: [id_enviado],  references: [id_usuarios])
   receptor Usuario @relation("resenas_recibidas", fields: [id_recibido], references: [id_usuarios])
   match    Matches @relation(fields: [id_match], references: [id_match])
+  reportes Reportes[]
 
   @@unique([id_enviado, id_match])
   @@map("resenas")
+}
+
+// REPORTES
+
+model Reportes {
+  id_reporte   Int                @id @default(autoincrement())
+  id_reportante String            @db.VarChar(10)
+  tipo_entidad  TipoEntidadReporte
+  motivo        MotivoReporte
+  comentario    String?           @db.Text
+  estado        EstadoReporte     @default(pendiente)
+  nota_admin    String?           @db.Text
+  fecha_creacion DateTime         @default(now())
+
+  id_usuario_reportado String?   @db.VarChar(10)
+  id_oferta_reportada  Int?
+  id_resena_reportada  Int?
+
+  // Relaciones
+  reportante         Usuario   @relation("reportes_enviados",   fields: [id_reportante],        references: [id_usuarios], onDelete: Cascade)
+  usuario_reportado  Usuario?  @relation("reportes_recibidos",  fields: [id_usuario_reportado],  references: [id_usuarios], onDelete: Cascade)
+  oferta_reportada   Ofertas?  @relation(fields: [id_oferta_reportada],  references: [id_ofertas],  onDelete: Cascade)
+  resena_reportada   Resenas?  @relation(fields: [id_resena_reportada],  references: [id_resena],   onDelete: Cascade)
+
+  @@index([estado, fecha_creacion])
+  @@map("reportes")
 }
 
