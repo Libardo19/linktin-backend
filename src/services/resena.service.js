@@ -1,5 +1,5 @@
 const ResenaModel   = require("../models/resena.model");
-const { notificar } = require("../utils/notificacion.helper");
+const { notificar } = require("../utils/notificaciones.helper");
 
 /**
  * Reglas de negocio para crear una reseña:

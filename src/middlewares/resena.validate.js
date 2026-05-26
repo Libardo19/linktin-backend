@@ -28,4 +28,4 @@ const createSchema = Joi.object({
   }),
 });
 
-module.exports = { validateCreateResena: validate(createSchema) };
+module.exports = { ValidateCreateResena: validate(createSchema) };
