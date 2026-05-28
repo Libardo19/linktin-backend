@@ -46,7 +46,28 @@ const create = async (usuarioToken, body) => {
 
     if (!empresa) throw { status: 404, message: "Debes tener un perfil de empresa antes de publicar ofertas" };
 
-    const oferta = await OfertaModel.create({ id_empresas: empresa.id_empresas, ...body });
+    // Normalizar campos
+    const modalidadMap = { presencial: "presencial", remoto: "remoto", hibrido: "hibrido", remote: "remoto", "on-site": "presencial", onsite: "presencial", hybrid: "hibrido" };
+    const modalidad = modalidadMap[body.modalidad?.toLowerCase().replace(/\s+/g, "").replace(/-/g, "")] || body.modalidad;
+    const direccion = body.direccion || body.ubicacion || "";
+
+    // Extraer el primer número del pago si es un rango
+    let pago = null;
+    if (body.pago) {
+        const match = String(body.pago).match(/\d+(\.\d+)?/);
+        pago = match ? match[0] : null;
+    }
+
+    const oferta = await OfertaModel.create({
+        id_empresas: empresa.id_empresas,
+        titulo: body.titulo,
+        descripcion: body.descripcion,
+        direccion,
+        modalidad,
+        pago,
+        fecha_cierre: body.fecha_cierre,
+        habilidades: body.habilidades || [],
+    });
 
     OfertaModel.findIdsCandidatos().then((ids) =>
         notificar.nuevaOferta(ids, {

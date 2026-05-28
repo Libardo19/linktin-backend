@@ -1,11 +1,12 @@
 const Joi = require("joi");
 
 const validate = (schema) => (req, res, next) => {
-    const { error } = schema.validate(req.body, { abortEarly: false });
+    const { error, value } = schema.validate(req.body, { abortEarly: false, stripUnknown: true });
     if (error) {
         const errors = error.details.map((d) => d.message);
         return res.status(400).json({ success: false, message: "Error de validación", errors });
     }
+    req.body = value;
     next();
 };
 
@@ -23,18 +24,15 @@ const createSchema = Joi.object({
         "any.required": "La descripción es obligatoria",
     }),
     direccion:    Joi.string().max(150).optional().allow(""),
-    modalidad:    Joi.string().valid("presencial", "remoto", "hibrido").required().messages({
-        "any.only":     "La modalidad debe ser: presencial, remoto o hibrido",
+    ubicacion:    Joi.string().max(150).optional().allow(""),
+    modalidad:    Joi.string().required().messages({
         "any.required": "La modalidad es obligatoria",
     }),
-    pago:         Joi.number().positive().optional(),
+    pago:         Joi.any().optional(),
     fecha_cierre: Joi.date().iso().greater("now").optional().messages({
         "date.greater": "La fecha de cierre debe ser futura",
     }),
-    habilidades:  Joi.array().items(habilidadOfertaSchema).min(1).required().messages({
-        "any.required": "Debes especificar al menos una habilidad requerida",
-        "array.min":    "Debes especificar al menos una habilidad requerida",
-    }),
+    habilidades:  Joi.array().items(habilidadOfertaSchema).min(0).optional(),
 });
 
 const updateSchema = Joi.object({
