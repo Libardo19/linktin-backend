@@ -35,7 +35,7 @@ const soloCandidato = (usuarioToken) => {
  * OCP: si en el futuro se cambia el algoritmo, solo se toca score.helper.js
  */
 
-const darLike = async (usuarioToken, id_ofertas) => {
+const darLike = async (usuarioToken, id_ofertas, scoreMatch) => {
   soloCandidato(usuarioToken);
 
   //1. Verificar perfil y habilidades del candidato
@@ -75,9 +75,9 @@ const darLike = async (usuarioToken, id_ofertas) => {
     throw { status: 400, message: "Ya has postulado a esta oferta." };
   }
 
-  //4. Calcular score de compatibilidad
-  const compatibilidad = calcularScore(
-    candidato.habilidadEmpleados,
+  //4. Calcular score de compatibilidad, si en dado caso, no se envia ya un score_match
+  const compatibilidad = scoreMatch ?? calcularScore(
+    candidato.habilidadEmpleado,
     oferta.habilidades_ofertas,
   );
 

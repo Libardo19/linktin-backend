@@ -2,7 +2,7 @@ const MatchingService = require("../services/matching.service");
 
 const darLike = async (req, res, next) => {
   try {
-    const data = await MatchingService.darLike(req.usuario, req.params.ofertaId);
+    const data = await MatchingService.darLike(req.usuario, req.params.ofertaId, req.body.score_match);
     res.status(201).json({ success: true, data });
   } catch (err) { 
     next(err); 
