@@ -10,7 +10,9 @@ const matchingRoutes         = require("./routes/matching.routes");
 const notificacionesRoutes   = require("./routes/notificaciones.routes");
 const adminRoutes            = require("./routes/admin.routes");
 const resenaRoutes           = require("./routes/resena.routes");
+const reporteRoutes          = require("./routes/reporte.routes");
 const errorMiddleware        = require("./middlewares/error.middleware");
+const recommendationRoutes = require("./routes/recommendation.routes");
 
 const app = express();
 
@@ -34,6 +36,8 @@ app.use("/api/matches",        matchingRoutes);
 app.use("/api/notificaciones", notificacionesRoutes);
 app.use("/api/resenas",        resenaRoutes)
 app.use("/api/admin",          adminRoutes);
+app.use("/api/reportes",       reporteRoutes);
+app.use("/api/recommendations", recommendationRoutes);
 
 app.get("/health", (req, res) =>
   res.json({ status: "ok", timestamp: new Date().toISOString() })

@@ -112,4 +112,10 @@ const findIdsCandidatosPendientes = async (id_ofertas) => {
     return matches.map((m) => m.id_usuarios);
 };
 
-module.exports = { findAll, findById, findByEmpresa, create, update, remove, cambiarEstado, findIdsCandidatos, findIdsCandidatosPendientes };
+const findAllActive = async () =>
+    prisma.ofertas.findMany({
+        where: { estado: "activa" },
+        select: OFERTA_COMPLETA,
+    });
+
+module.exports = { findAll, findById, findByEmpresa, create, update, remove, cambiarEstado, findIdsCandidatos, findIdsCandidatosPendientes, findAllActive };

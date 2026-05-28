@@ -5,10 +5,10 @@ const required = [
   "JWT_SECRET",
   "JWT_EXPIRES_IN",
   "PORT",
+  "OPENROUTER_API_KEY", // ✅ Agregar aquí
 ];
 
 required.forEach((key) => {
-
   console.log(key, "=", process.env[key]);
   if (!process.env[key]) {
     console.error(`Variable de entorno faltante: ${key}`);
@@ -17,11 +17,12 @@ required.forEach((key) => {
 });
 
 module.exports = {
-  port:          process.env.PORT,
-  nodeEnv:       process.env.NODE_ENV || "development",
-  databaseUrl:   process.env.DATABASE_URL,
+  port:        process.env.PORT,
+  nodeEnv:     process.env.NODE_ENV || "development",
+  databaseUrl: process.env.DATABASE_URL,
   jwt: {
-    secret:      process.env.JWT_SECRET,
-    expiresIn:   process.env.JWT_EXPIRES_IN,
+    secret:    process.env.JWT_SECRET,
+    expiresIn: process.env.JWT_EXPIRES_IN,
   },
+  openrouterApiKey: process.env.OPENROUTER_API_KEY, // ✅ Exportar
 };
