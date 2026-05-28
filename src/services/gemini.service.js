@@ -8,19 +8,22 @@ const askGemini = async (prompt) => {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: "openrouter/free", // ✅ router automático entre todos los modelos gratis
+      model: "openrouter/free",
       messages: [{ role: "user", content: prompt }],
     }),
   });
 
   const data = await response.json();
 
-  if (!data.choices?.[0]?.message?.content) {
+  const message = data.choices?.[0]?.message;
+  const content = message?.content || message?.reasoning;
+
+  if (!content) {
     console.error("Respuesta inesperada:", JSON.stringify(data, null, 2));
     throw new Error("Respuesta inválida del modelo");
   }
 
-  return data.choices[0].message.content;
+  return content;
 };
 
 module.exports = { askGemini };

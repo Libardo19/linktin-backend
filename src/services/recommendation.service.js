@@ -1,9 +1,9 @@
-const { getCandidateProfile } = require("./candidate.service");
-const { getOffers }           = require("./offer.service");
+const { findByUsuarioId }     = require("../models/candidato.model");
+const ofertaModel       = require("../models/oferta.model");
 const { buildPrompt }         = require("../utils/buildPrompt");
 const { askGemini }           = require("./gemini.service");
 
-// ✅ Función que faltaba
+// Función que faltaba
 const preFilter = (candidate, offers) => {
   return offers.filter(o => {
     const modalidadOk = !o.modalidad || !candidate.modalidad || o.modalidad === candidate.modalidad;
@@ -13,8 +13,8 @@ const preFilter = (candidate, offers) => {
 };
 
 const generateRecommendations = async (idUsuario) => {
-  const candidate = await getCandidateProfile(idUsuario);
-  const offers    = await getOffers();
+  const candidate = await findByUsuarioId(idUsuario);
+  const offers    = await ofertaModel.findAllActive(); 
 
   const filtradas = preFilter(candidate, offers);
   const prompt    = buildPrompt(candidate, filtradas);
