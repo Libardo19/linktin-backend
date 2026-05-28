@@ -77,7 +77,7 @@ const darLike = async (usuarioToken, id_ofertas, scoreMatch) => {
 
   //4. Calcular score de compatibilidad, si en dado caso, no se envia ya un score_match
   const compatibilidad = scoreMatch ?? calcularScore(
-    candidato.habilidadEmpleado,
+    candidato.habilidadEmpleados,
     oferta.habilidades_ofertas,
   );
 

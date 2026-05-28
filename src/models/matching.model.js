@@ -69,7 +69,7 @@ const MATCH_EMPRESA = {
 
 // Queries comunes
 const findCandidatoConHabilidades = async (id_usuarios) => 
-  prisma.perfil_candidato.findUnique({
+  prisma.perfilCandidato.findUnique({
   where: {
     id_usuarios: id_usuarios
   },
