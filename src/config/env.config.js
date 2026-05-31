@@ -6,6 +6,8 @@ const required = [
   "JWT_EXPIRES_IN",
   "PORT",
   "OPENROUTER_API_KEY", // ✅ Agregar aquí
+  "SUPABASE_URL",
+  "SUPABASE_SERVICE_KEY",
 ];
 
 required.forEach((key) => {
