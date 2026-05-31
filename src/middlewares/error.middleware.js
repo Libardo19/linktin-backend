@@ -37,6 +37,20 @@ const errorMiddleware = (err, req, res, next) => {
     });
   }
 
+  // Error de multer (tamaño excedido, archivo no permitido)
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(400).json({
+      success: false,
+      message: "El archivo excede el tamaño máximo permitido (5MB)",
+    });
+  }
+  if (err.message === "Formato de archivo no permitido") {
+    return res.status(400).json({
+      success: false,
+      message: "Formato de archivo no permitido. Usa JPEG, PNG, WebP o PDF",
+    });
+  }
+
   // Error inesperado — no exponer detalles en producción
   console.error("[ERROR]", err);
   res.status(500).json({
