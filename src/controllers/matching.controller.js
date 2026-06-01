@@ -51,4 +51,11 @@ const rechazar = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { darLike, retirarLike, feedCandidato, feedEmpresa, misMatches, aceptar, rechazar };
+const getCandidatosEmpresa = async (req, res, next) => {
+  try {
+    const data = await MatchingService.getCandidatosEmpresa(req.usuario);
+    res.status(200).json({ success: true, total: data.length, data });
+  } catch (err) { next(err); }
+};
+
+module.exports = { darLike, retirarLike, feedCandidato, feedEmpresa, misMatches, getCandidatosEmpresa, aceptar, rechazar };

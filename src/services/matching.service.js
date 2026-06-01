@@ -214,11 +214,19 @@ const retirarLike = async (usuarioToken, id_match) => {
   return resultado;
 };
 
+const getCandidatosEmpresa = async (usuarioToken) => {
+  soloEmpresa(usuarioToken);
+  const empresa = await EmpresaModel.findByUsuarioId(usuarioToken.id);
+  if (!empresa) throw { status: 404, message: "Empresa no encontrada." };
+  return MatchingModel.findCandidatosByEmpresa(empresa.id_empresas);
+};
+
 module.exports = {
   darLike,
   getFeedCandidato,
   getFeedEmpresa,
   getMisMatches,
+  getCandidatosEmpresa,
   responderEmpresa,
   retirarLike
 };

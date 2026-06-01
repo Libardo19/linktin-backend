@@ -37,6 +37,19 @@ const MATCH_EMPRESA = {
   estadoEmpresa:  true,
   fechaMatch:     true,
   cv_url:         true,
+  oferta: {
+    select: {
+      id_ofertas: true,
+      titulo: true,
+      habilidades_ofertas: {
+        select: {
+          habilidad: {
+            select: { nombre: true }
+          },
+        },
+      },
+    },
+  },
   usuario: {
     select: {
       id_usuarios:   true,
@@ -174,6 +187,15 @@ const updateEstado = async (id_match, campo, estado, selector) =>
     select: selector,
   });
 
+const findCandidatosByEmpresa = async (id_empresas) =>
+  prisma.matches.findMany({
+    where: {
+      oferta: { id_empresas }
+    },
+    select: MATCH_EMPRESA,
+    orderBy: { compatibilidad: "desc" },
+  });
+
   module.exports = {
   findCandidatoConHabilidades,
   findOfertaConHabilidades,
@@ -184,6 +206,7 @@ const updateEstado = async (id_match, campo, estado, selector) =>
   findMatchesEfectivos,
   findMatchById,
   updateEstado,
+  findCandidatosByEmpresa,
   MATCH_CANDIDATO,
   MATCH_EMPRESA,
   };

@@ -17,6 +17,18 @@ const OFERTA_BASICA = {
     },
 };
 
+const OFERTA_CON_POSTULACIONES = {
+    ...OFERTA_BASICA,
+    _count: {
+        select: { matches: true }
+    },
+    habilidades_ofertas: {
+        select: {
+            habilidad: { select: { nombre: true } },
+        },
+    },
+};
+
 const OFERTA_COMPLETA = {
     ...OFERTA_BASICA,
     descripcion: true,
@@ -69,7 +81,7 @@ const findById = async (id_ofertas) =>
 const findByEmpresa = async (id_empresas) =>
     prisma.ofertas.findMany({
         where:   { id_empresas },
-        select:  OFERTA_BASICA,
+        select:  OFERTA_CON_POSTULACIONES,
         orderBy: { fecha_publicacion: "desc" },
     });
 

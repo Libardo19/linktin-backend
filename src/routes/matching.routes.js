@@ -13,6 +13,7 @@ router.get("/mis-postulaciones", ctrl.feedCandidato);
 router.get("/mis_matches", ctrl.misMatches);
 
 // Empresa
+router.get("/empresa/candidatos", ctrl.getCandidatosEmpresa);
 router.get("/oferta/:ofertaId/candidatos", ctrl.feedEmpresa);
 router.patch("/:id/aceptar", ctrl.aceptar);
 router.patch("/:id/rechazar", ctrl.rechazar);
