@@ -2,6 +2,7 @@
 
         const PERFIL_BASICO = {
         id_candidato:   true,
+        id_usuarios:    true,
         nombres:        true,
         apellidos:      true,
         biografia:      true,

@@ -5,7 +5,7 @@
             const candidato = await CandidatoModel.findById(id_candidato);
                 if (!candidato) throw { status: 404, message: "Perfil de candidato no encontrado" };
 
-                if (usuarioToken.tipo !== "admin" && usuarioToken.id !== id_candidato)
+                if (usuarioToken.tipo !== "admin" && usuarioToken.id !== candidato.id_usuarios)
                     throw { status: 403, message: "No tienes permiso para modificar este perfil" };
                 return candidato;
                 };
