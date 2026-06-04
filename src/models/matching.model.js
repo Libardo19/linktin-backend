@@ -178,7 +178,17 @@ const findMatchesEfectivos = async (id_usuarios) =>
   });
 
 const findMatchById = async (id_match) =>
-  prisma.matches.findUnique({ where: { id_match } });
+  prisma.matches.findUnique({
+    where: { id_match },
+    include: {
+      oferta: {
+        select: {
+          titulo: true,
+          perfil_empresa: { select: { id_usuarios: true, nombre: true } },
+        },
+      },
+    },
+  });
 
 const updateEstado = async (id_match, campo, estado, selector) =>
   prisma.matches.update({
