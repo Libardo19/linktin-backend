@@ -12,6 +12,7 @@ const adminRoutes            = require("./routes/admin.routes");
 const resenaRoutes           = require("./routes/resena.routes");
 const reporteRoutes          = require("./routes/reporte.routes");
 const errorMiddleware        = require("./middlewares/error.middleware");
+const initBuckets            = require("./config/initBuckets");
 const recommendationRoutes = require("./routes/recommendation.routes");
 const storageRoutes = require("./routes/storage.routes");
 const chatRoutes = require("./routes/chat.routes");
@@ -27,6 +28,8 @@ app.use(cors({
 }))
 
 app.use(express.json());
+
+initBuckets();
 
 app.use("/api/auth",           authRoutes);
 app.use("/api/candidatos",     candidatoRoutes);

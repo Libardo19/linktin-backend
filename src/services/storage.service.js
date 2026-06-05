@@ -2,9 +2,9 @@ const supabase = require("../config/supabase.config");
 const crypto = require("crypto");
 
 const BUCKETS = {
-  FOTO: "fotos-perfil",
-  LOGO: "logos-empresas",
-  CV: "hojas-vida",
+  foto: "fotos-perfil",
+  logo: "logos-empresas",
+  cv: "hojas-vida",
 };
 
 const PUBLIC_BUCKETS = ["fotos-perfil", "logos-empresas"];

@@ -20,7 +20,7 @@ const uploadFile = async (req, res, next) => {
       if (perfil?.foto_url) {
         await StorageService.deleteFile("fotos-perfil", perfil.foto_url.replace(`${process.env.SUPABASE_URL}/storage/v1/object/public/fotos-perfil/`, ""));
       }
-      await CandidatoModel.update(req.usuario.id, { foto_url: url });
+      await CandidatoModel.update(perfil.id_candidato, { foto_url: url });
     }
 
     if (tipo === "logo") {
@@ -36,7 +36,7 @@ const uploadFile = async (req, res, next) => {
       if (perfil?.hoja_vida) {
         await StorageService.deleteFile("hojas-vida", perfil.hoja_vida);
       }
-      await CandidatoModel.update(req.usuario.id, { hoja_vida: path });
+      await CandidatoModel.update(perfil.id_candidato, { hoja_vida: path });
     }
 
     res.status(200).json({ success: true, data: { path, url } });
@@ -56,7 +56,7 @@ const deleteFile = async (req, res, next) => {
         const path = perfil.foto_url.replace(`${process.env.SUPABASE_URL}/storage/v1/object/public/fotos-perfil/`, "");
         await StorageService.deleteFile("fotos-perfil", path);
       }
-      await CandidatoModel.update(req.usuario.id, { foto_url: null });
+      await CandidatoModel.update(perfil.id_candidato, { foto_url: null });
     }
 
     if (tipo === "logo") {
@@ -73,7 +73,7 @@ const deleteFile = async (req, res, next) => {
       if (perfil?.hoja_vida) {
         await StorageService.deleteFile("hojas-vida", perfil.hoja_vida);
       }
-      await CandidatoModel.update(req.usuario.id, { hoja_vida: null });
+      await CandidatoModel.update(perfil.id_candidato, { hoja_vida: null });
     }
 
     res.status(200).json({ success: true, message: "Archivo eliminado correctamente" });

@@ -23,13 +23,13 @@ const Joi = require("joi");
     });
 
     const updatePerfilSchema = Joi.object({
-    nombres:          Joi.string().max(20).optional(),
-    apellidos:        Joi.string().max(20).optional(),
-    fecha_nacimiento: Joi.date().iso().optional(),
-    genero:           Joi.string().max(15).optional(),
-    biografia:        Joi.string().max(1000).optional(),
+    nombres:          Joi.string().max(20).optional().allow(""),
+    apellidos:        Joi.string().max(20).optional().allow(""),
+    fecha_nacimiento: Joi.date().iso().optional().allow(""),
+    genero:           Joi.string().max(15).optional().allow(""),
+    biografia:        Joi.string().max(1000).optional().allow(""),
     foto_url:         Joi.string().uri().max(255).optional().allow(""),
-    ubicacion:        Joi.string().max(100).optional(),
+    ubicacion:        Joi.string().max(100).optional().allow(""),
     portafolio_url:   Joi.string().uri().max(255).optional().allow(""),
     github_url:       Joi.string().uri().max(255).optional().allow(""),
     hoja_vida:        Joi.string().max(255).optional().allow(""),
