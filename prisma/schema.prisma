@@ -83,6 +83,7 @@ model Usuario {
   perfil_empresa     PerfilEmpresa?
   matches            Matches[]
   mensajes           Mensajes[]
+  conversaciones     Conversacion[]
   notificaciones     Notificaciones[]
   resenas_enviadas   Resenas[] @relation("resenas_enviadas")
   resenas_recibidas  Resenas[] @relation("resenas_recibidas")
@@ -266,18 +267,32 @@ model Matches {
 // ─── MENSAJES ─────────────────────────────────────────────────────────
 
 model Mensajes {
-  id_mensajes Int      @id @default(autoincrement())
-  id_match    Int
-  id_usuario  String   @db.VarChar(10)
-  contenido   String   @db.Text
-  fecha_envio DateTime @default(now())
-  leido       Boolean  @default(false)
+  id_mensajes    Int           @id @default(autoincrement())
+  id_match       Int?
+  id_usuario     String        @db.VarChar(10)
+  contenido      String        @db.Text
+  fecha_envio    DateTime      @default(now())
+  leido          Boolean       @default(false)
+  conversacionId String?
 
-  match   Matches @relation(fields: [id_match],   references: [id_match],   onDelete: Cascade)
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuarios], onDelete: Cascade)
+  match        Matches?      @relation(fields: [id_match], references: [id_match], onDelete: Cascade, onUpdate: Cascade)
+  usuario      Usuario       @relation(fields: [id_usuario], references: [id_usuarios], onDelete: Cascade)
+  conversacion Conversacion? @relation(fields: [conversacionId], references: [id], onDelete: Cascade)
 
   @@index([id_match, fecha_envio])
   @@map("mensajes")
+}
+
+// ─── CONVERSACIONES ───────────────────────────────────────────────────
+
+model Conversacion {
+  id            String      @id @default(uuid())
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  participantes Usuario[]
+  mensajes      Mensajes[]
+
+  @@map("conversaciones")
 }
 
 // ─── NOTIFICACIONES ───────────────────────────────────────────────────

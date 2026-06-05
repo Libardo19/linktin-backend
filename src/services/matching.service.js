@@ -1,5 +1,6 @@
 const MatchingModel =     require("../models/matching.model");
 const EmpresaModel =      require("../models/empresa.model");
+const prisma =            require("../config/db.config");
 const { calcularScore } = require("../utils/score.helper");
 const { notificar } =     require("../utils/notificaciones.helper");
 
@@ -96,6 +97,19 @@ const darLike = async (usuarioToken, id_ofertas, scoreMatch) => {
     matchId:    match.id_match,
   }).catch(console.error);
 
+  if (global.io) {
+    global.io.to(`user:${oferta.perfil_empresa.id_usuarios}`).emit('nuevo_match', {
+      matchId: match.id_match,
+      candidato: `${candidato.nombres} ${candidato.apellidos}`,
+      oferta: oferta.titulo,
+    });
+
+    global.io.to(`user:${oferta.perfil_empresa.id_usuarios}`).emit('nueva_notificacion', {
+      tipo: 'nuevo_match',
+      matchId: match.id_match,
+    });
+  }
+
   return match;
 };
 
@@ -170,12 +184,68 @@ const responderEmpresa = async (usuarioToken, id_match, accion) => {
       empresa, oferta,
       matchId: parseInt(id_match),
     }).catch(console.error);
+
+    if (global.io) {
+      global.io.to(`user:${match.id_usuarios}`).emit('nueva_notificacion', {
+        tipo: 'match_aceptado',
+        matchId: parseInt(id_match),
+        empresa,
+        oferta,
+      });
+    }
+
+    try {
+      const empresaUserId = match.oferta?.perfil_empresa?.id_usuarios;
+      if (empresaUserId) {
+        let conversacion = await prisma.conversacion.findFirst({
+          where: {
+            AND: [
+              { participantes: { some: { id_usuarios: match.id_usuarios } } },
+              { participantes: { some: { id_usuarios: empresaUserId } } },
+            ],
+          },
+        });
+
+        if (!conversacion) {
+          conversacion = await prisma.conversacion.create({
+            data: {
+              participantes: {
+                connect: [
+                  { id_usuarios: match.id_usuarios },
+                  { id_usuarios: empresaUserId },
+                ],
+              },
+            },
+          });
+        }
+
+        if (global.io) {
+          global.io.to(`user:${match.id_usuarios}`).emit('nueva_conversacion', {
+            conversacionId: conversacion.id,
+          });
+          global.io.to(`user:${empresaUserId}`).emit('nueva_conversacion', {
+            conversacionId: conversacion.id,
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error al crear conversación automática:', err);
+    }
   } else {
     notificar.matchRechazado({
       id_candidato: match.id_usuarios,
       empresa, oferta,
       matchId: parseInt(id_match),
     }).catch(console.error);
+
+    if (global.io) {
+      global.io.to(`user:${match.id_usuarios}`).emit('nueva_notificacion', {
+        tipo: 'match_rechazado',
+        matchId: parseInt(id_match),
+        empresa,
+        oferta,
+      });
+    }
   }
 
   return resultado;

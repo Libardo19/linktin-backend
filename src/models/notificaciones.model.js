@@ -25,7 +25,7 @@ const countNoLeidas = async (id_usuario) => prisma.notificaciones.count({
 
 // Marca una notificacion especifica como leida
 const marcarLeida = async (id_notificacion, id_usuario) => prisma.notificaciones.updateMany({
-  where: {id_usuario, leido: false},
+  where: { id_notificaciones: id_notificacion, id_usuario },
   data: { leido: true },
 });
 

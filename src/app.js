@@ -14,6 +14,7 @@ const reporteRoutes          = require("./routes/reporte.routes");
 const errorMiddleware        = require("./middlewares/error.middleware");
 const recommendationRoutes = require("./routes/recommendation.routes");
 const storageRoutes = require("./routes/storage.routes");
+const chatRoutes = require("./routes/chat.routes");
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use("/api/admin",          adminRoutes);
 app.use("/api/reportes",       reporteRoutes);
 app.use("/api/recommendations", recommendationRoutes);
 app.use("/api/storage", storageRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.get("/health", (req, res) =>
   res.json({ status: "ok", timestamp: new Date().toISOString() })
