@@ -59,7 +59,7 @@ const getRecibidas = async (id_usuario) =>
 
 // Reseñas enviadas por un usuario
 const getMisResenas = async (usuarioToken) => 
-  ResenaModel.findEnviadasByUsuario(usuarioToken);
+  ResenaModel.findEnviadasByUsuario(usuarioToken.id);
 
 module.exports = {
   create,

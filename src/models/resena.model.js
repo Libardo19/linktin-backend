@@ -25,7 +25,7 @@ const RESENA_SELECT = {
 // Verficar si ya existe una reseña entre el autor en ese match
 const findByAutorYMatch = async (id_usuarios, id_match) => 
   prisma.resenas.findUnique({
-    where: {id_enviado_id_match: {id_enviado, id_match}},
+    where: {id_enviado_id_match: {id_enviado: id_usuarios, id_match}},
   });
 
 // Verificar que el match exista y que el usuario sea parte de él

@@ -16,6 +16,7 @@ const MATCH_CANDIDATO = {
       fecha_cierre: true,
       perfil_empresa: {
         select: { 
+          id_usuarios: true,
           nombre:   true, 
           logo_url: true,
           sector: {

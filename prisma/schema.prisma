@@ -7,7 +7,247 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-// ENUMS 
+
+model Usuario {
+  id_usuarios        String           @id @db.VarChar(10)
+  email              String           @unique @db.VarChar(50)
+  password           String           @db.VarChar(255)
+  fecha_creacion     DateTime         @default(now()) @db.Date
+  activo             Boolean          @default(true)
+  tipo               TipoUsuario
+  matches            Matches[]
+  mensajes           Mensajes[]
+  notificaciones     Notificaciones[]
+  perfil_candidato   PerfilCandidato?
+  perfil_empresa     PerfilEmpresa?
+  reportes_enviados  Reportes[]       @relation("reportes_enviados")
+  reportes_recibidos Reportes[]       @relation("reportes_recibidos")
+  resenas_enviadas   Resenas[]        @relation("resenas_enviadas")
+  resenas_recibidas  Resenas[]        @relation("resenas_recibidas")
+  conversaciones     Conversacion[]   @relation("ConversacionToUsuario")
+
+  @@map("usuarios")
+}
+
+model PerfilCandidato {
+  id_candidato           String                 @id @db.VarChar(10)
+  id_usuarios            String                 @unique @db.VarChar(10)
+  nombres                String                 @db.VarChar(20)
+  apellidos              String                 @db.VarChar(20)
+  fecha_nacimiento       DateTime?              @db.Date
+  genero                 String?                @db.VarChar(15)
+  biografia              String?
+  foto_url               String?                @db.VarChar(255)
+  ubicacion              String?                @db.VarChar(100)
+  reputacion             Decimal?               @db.Decimal(3, 2)
+  portafolio_url         String?                @db.VarChar(255)
+  github_url             String?                @db.VarChar(255)
+  hoja_vida              String?                @db.VarChar(255)
+  educacion_candidatos   EducacionCandidato[]
+  experiencia_candidatos ExperienciaCandidato[]
+  habilidadEmpleados     HabilidadEmpleado[]
+  usuario                Usuario                @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+
+  @@map("perfil_candidatos")
+}
+
+model ExperienciaCandidato {
+  id_experiencia Int             @id @default(autoincrement())
+  id_candidato   String          @db.VarChar(10)
+  empresa        String          @db.VarChar(100)
+  cargo          String          @db.VarChar(100)
+  anio_inicio    Int
+  anio_fin       Int?
+  candidato      PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
+
+  @@map("experiencia_candidatos")
+}
+
+model EducacionCandidato {
+  id_educacion Int             @id @default(autoincrement())
+  id_candidato String          @db.VarChar(10)
+  institucion  String          @db.VarChar(150)
+  titulo       String          @db.VarChar(150)
+  anio_inicio  Int
+  anio_fin     Int?
+  candidato    PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
+
+  @@map("educacion_candidatos")
+}
+
+model Habilidades {
+  id_habilidades       Int                  @id @default(autoincrement())
+  nombre               String               @unique @db.VarChar(100)
+  categoria            String?              @db.VarChar(100)
+  habilidades_empleado HabilidadEmpleado[]
+  habilidades_ofertas  HabilidadesOfertas[]
+
+  @@map("habilidades")
+}
+
+model HabilidadEmpleado {
+  id_habiEmpleados Int             @id @default(autoincrement())
+  id_candidato     String          @db.VarChar(10)
+  id_habilidades   Int
+  nivel            NivelCandidato
+  candidato        PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
+  habilidad        Habilidades     @relation(fields: [id_habilidades], references: [id_habilidades])
+
+  @@unique([id_candidato, id_habilidades])
+  @@map("habilidades_empleado")
+}
+
+model PerfilEmpresa {
+  id_empresas Int       @id @default(autoincrement())
+  id_usuarios String    @unique @db.VarChar(10)
+  nombre      String    @db.VarChar(100)
+  descripcion String?
+  logo_url    String?   @db.VarChar(255)
+  ubicacion   String?   @db.VarChar(100)
+  website     String?   @db.VarChar(255)
+  id_sector   Int?      @unique
+  ofertas     Ofertas[]
+  sector      Sectores? @relation(fields: [id_sector], references: [id_sector])
+  usuario     Usuario   @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+
+  @@map("perfil_empresas")
+}
+
+model Sectores {
+  id_sector   Int            @id @default(autoincrement())
+  nombre      String         @unique @db.VarChar(100)
+  descripcion String?
+  empresas    PerfilEmpresa?
+
+  @@map("sectores")
+}
+
+model Ofertas {
+  id_ofertas          Int                  @id @default(autoincrement())
+  id_empresas         Int
+  titulo              String               @db.VarChar(200)
+  descripcion         String
+  direccion           String?              @db.VarChar(150)
+  modalidad           String               @db.VarChar(50)
+  pago                Decimal?             @db.Decimal(10, 2)
+  estado              EstadoOferta         @default(activa)
+  fecha_publicacion   DateTime             @default(now()) @db.Date
+  fecha_cierre        DateTime?            @db.Date
+  habilidades_ofertas HabilidadesOfertas[]
+  matches             Matches[]
+  perfil_empresa      PerfilEmpresa        @relation(fields: [id_empresas], references: [id_empresas], onDelete: Cascade)
+  reportes            Reportes[]
+
+  @@map("ofertas")
+}
+
+model HabilidadesOfertas {
+  id_habiOfertas Int         @id @default(autoincrement())
+  id_ofertas     Int
+  id_habilidades Int
+  nivelRequerido String      @db.VarChar(50)
+  obligatoria    Boolean     @default(false)
+  habilidad      Habilidades @relation(fields: [id_habilidades], references: [id_habilidades])
+  oferta         Ofertas     @relation(fields: [id_ofertas], references: [id_ofertas], onDelete: Cascade)
+
+  @@unique([id_ofertas, id_habilidades])
+  @@map("habilidades_ofertas")
+}
+
+model Matches {
+  id_match       Int         @id @default(autoincrement())
+  id_usuarios    String      @db.VarChar(10)
+  id_ofertas     Int
+  compatibilidad Decimal     @db.Decimal(5, 2)
+  estadoUsuario  EstadoMatch @default(pendiente)
+  estadoEmpresa  EstadoMatch @default(pendiente)
+  fechaMatch     DateTime    @default(now())
+  cv_url         String?     @db.VarChar(255)
+  oferta         Ofertas     @relation(fields: [id_ofertas], references: [id_ofertas], onDelete: Cascade)
+  usuario        Usuario     @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
+  mensajes       Mensajes[]
+  resenas        Resenas[]
+
+  @@unique([id_usuarios, id_ofertas])
+  @@map("matches")
+}
+
+model Mensajes {
+  id_mensajes    Int           @id @default(autoincrement())
+  id_match       Int?
+  id_usuario     String        @db.VarChar(10)
+  contenido      String
+  fecha_envio    DateTime      @default(now())
+  leido          Boolean       @default(false)
+  conversacionId String?
+  conversacion   Conversacion? @relation(fields: [conversacionId], references: [id], onDelete: Cascade)
+  match          Matches?      @relation(fields: [id_match], references: [id_match], onDelete: Cascade)
+  usuario        Usuario       @relation(fields: [id_usuario], references: [id_usuarios], onDelete: Cascade)
+
+  @@index([id_match, fecha_envio])
+  @@map("mensajes")
+}
+
+model Conversacion {
+  id            String     @id @default(uuid())
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  mensajes      Mensajes[]
+  participantes Usuario[]  @relation("ConversacionToUsuario")
+
+  @@map("conversaciones")
+}
+
+model Notificaciones {
+  id_notificaciones Int              @id @default(autoincrement())
+  id_usuario        String           @db.VarChar(10)
+  tipo              TipoNotificacion
+  payload           Json
+  leido             Boolean          @default(false)
+  fecha_creacion    DateTime         @default(now())
+  usuario           Usuario          @relation(fields: [id_usuario], references: [id_usuarios], onDelete: Cascade)
+
+  @@index([id_usuario, leido])
+  @@map("notificaciones")
+}
+
+model Resenas {
+  id_resena   Int        @id @default(autoincrement())
+  id_enviado  String     @db.VarChar(10)
+  id_recibido String     @db.VarChar(10)
+  id_match    Int
+  raiting     Decimal    @db.Decimal(2, 1)
+  comentario  String?
+  fecha_envio DateTime   @default(now())
+  reportes    Reportes[]
+  autor       Usuario    @relation("resenas_enviadas", fields: [id_enviado], references: [id_usuarios])
+  match       Matches    @relation(fields: [id_match], references: [id_match])
+  receptor    Usuario    @relation("resenas_recibidas", fields: [id_recibido], references: [id_usuarios])
+
+  @@unique([id_enviado, id_match])
+  @@map("resenas")
+}
+
+model Reportes {
+  id_reporte           Int                @id @default(autoincrement())
+  id_reportante        String             @db.VarChar(10)
+  tipo_entidad         TipoEntidadReporte
+  motivo               MotivoReporte
+  comentario           String?
+  estado               EstadoReporte      @default(pendiente)
+  nota_admin           String?
+  fecha_creacion       DateTime           @default(now())
+  id_usuario_reportado String?            @db.VarChar(10)
+  id_oferta_reportada  Int?
+  id_resena_reportada  Int?
+  oferta_reportada     Ofertas?           @relation(fields: [id_oferta_reportada], references: [id_ofertas], onDelete: Cascade)
+  reportante           Usuario            @relation("reportes_enviados", fields: [id_reportante], references: [id_usuarios], onDelete: Cascade)
+  resena_reportada     Resenas?           @relation(fields: [id_resena_reportada], references: [id_resena], onDelete: Cascade)
+  usuario_reportado    Usuario?           @relation("reportes_recibidos", fields: [id_usuario_reportado], references: [id_usuarios], onDelete: Cascade)
+
+  @@index([estado, fecha_creacion])
+  @@map("reportes")
+}
 
 enum TipoUsuario {
   candidato
@@ -38,10 +278,10 @@ enum TipoNotificacion {
   match_aceptado
   match_rechazado
   match_retirado
-  nueva_oferta
-  oferta_cerrada    
+  oferta_cerrada
   resena_recibida
-  mensaje_recibido  //Por ahora
+  mensaje_recibido
+  nueva_oferta
 }
 
 enum TipoEntidadReporte {
@@ -68,292 +308,3 @@ enum EstadoReporte {
   resuelto
   descartado
 }
-
-// ─── USUARIOS ─────────────────────────────────────────────────────────
-
-model Usuario {
-  id_usuarios    String      @id @db.VarChar(10)
-  email          String      @unique @db.VarChar(50)
-  password       String      @db.VarChar(255)
-  tipo           TipoUsuario
-  fecha_creacion DateTime    @default(now()) @db.Date
-  activo         Boolean     @default(true)
-
-  perfil_candidato   PerfilCandidato?
-  perfil_empresa     PerfilEmpresa?
-  matches            Matches[]
-  mensajes           Mensajes[]
-  conversaciones     Conversacion[]
-  notificaciones     Notificaciones[]
-  resenas_enviadas   Resenas[] @relation("resenas_enviadas")
-  resenas_recibidas  Resenas[] @relation("resenas_recibidas")
-  reportes_enviados  Reportes[] @relation("reportes_enviados")
-  reportes_recibidos Reportes[] @relation("reportes_recibidos")
-
-  @@map("usuarios")
-}
-
-// ─── PERFIL CANDIDATO ─────────────────────────────────────────────────
-
-model PerfilCandidato {
-  id_candidato     String    @id @db.VarChar(10)
-  id_usuarios      String    @unique @db.VarChar(10)
-  nombres          String    @db.VarChar(20)
-  apellidos        String    @db.VarChar(20)
-  fecha_nacimiento DateTime? @db.Date
-  genero           String?   @db.VarChar(15)
-  biografia        String?   @db.Text
-  foto_url         String?   @db.VarChar(255)
-  ubicacion        String?   @db.VarChar(100)
-  reputacion       Decimal?  @db.Decimal(3, 2)
-  portafolio_url   String?   @db.VarChar(255)
-  github_url       String?   @db.VarChar(255)
-  hoja_vida        String?   @db.VarChar(255)
-
-  usuario                Usuario               @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
-  experiencia_candidatos ExperienciaCandidato[]
-  educacion_candidatos   EducacionCandidato[]
-  habilidadEmpleados     HabilidadEmpleado[]
-
-  @@map("perfil_candidatos")
-}
-
-// ─── EXPERIENCIA ──────────────────────────────────────────────────────
-
-model ExperienciaCandidato {
-  id_experiencia Int    @id @default(autoincrement())
-  id_candidato   String @db.VarChar(10)
-  empresa        String @db.VarChar(100)
-  cargo          String @db.VarChar(100)
-  anio_inicio    Int
-  anio_fin       Int?
-
-  candidato PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
-
-  @@map("experiencia_candidatos")
-}
-
-// ─── EDUCACIÓN ────────────────────────────────────────────────────────
-
-model EducacionCandidato {
-  id_educacion Int    @id @default(autoincrement())
-  id_candidato String @db.VarChar(10)
-  institucion  String @db.VarChar(150)
-  titulo       String @db.VarChar(150)
-  anio_inicio  Int
-  anio_fin     Int?
-
-  candidato PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
-
-  @@map("educacion_candidatos")
-}
-
-// ─── HABILIDADES ──────────────────────────────────────────────────────
-
-model Habilidades {
-  id_habilidades Int     @id @default(autoincrement())
-  nombre         String  @unique @db.VarChar(100)
-  categoria      String? @db.VarChar(100)
-
-  habilidades_empleado HabilidadEmpleado[]
-  habilidades_ofertas  HabilidadesOfertas[]
-
-  @@map("habilidades")
-}
-
-// ─── HABILIDADES CANDIDATO ────────────────────────────────────────────
-
-model HabilidadEmpleado {
-  id_habiEmpleados Int            @id @default(autoincrement())
-  id_candidato     String         @db.VarChar(10)
-  id_habilidades   Int
-  nivel            NivelCandidato
-
-  candidato PerfilCandidato @relation(fields: [id_candidato], references: [id_candidato], onDelete: Cascade)
-  habilidad Habilidades     @relation(fields: [id_habilidades], references: [id_habilidades])
-
-  @@unique([id_candidato, id_habilidades])
-  @@map("habilidades_empleado")
-}
-
-// ─── PERFIL EMPRESA ───────────────────────────────────────────────────
-
-model PerfilEmpresa {
-  id_empresas Int     @id @default(autoincrement())
-  id_usuarios String  @unique @db.VarChar(10)
-  id_sector   Int?    @unique                          
-  nombre      String  @db.VarChar(100)
-  descripcion String? @db.Text
-  logo_url    String? @db.VarChar(255)
-  ubicacion   String? @db.VarChar(100)
-  website     String? @db.VarChar(255)
-
-  usuario Usuario  @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
-  sector  Sectores? @relation(fields: [id_sector],   references: [id_sector])
-  ofertas Ofertas[]
-
-  @@map("perfil_empresas")
-}
-
-model Sectores {
-  id_sector   Int     @id @default(autoincrement())
-  nombre      String  @unique @db.VarChar(100)
-  descripcion String? @db.Text
-
-  empresas PerfilEmpresa[]
-
-  @@map("sectores")
-}
-
-// ─── OFERTAS ──────────────────────────────────────────────────────────
-
-model Ofertas {
-  id_ofertas        Int          @id @default(autoincrement())
-  id_empresas       Int
-  titulo            String       @db.VarChar(200)
-  descripcion       String       @db.Text
-  direccion         String?      @db.VarChar(150)
-  modalidad         String       @db.VarChar(50)
-  pago              Decimal?     @db.Decimal(10, 2)
-  estado            EstadoOferta @default(activa)
-  fecha_publicacion DateTime     @default(now()) @db.Date
-  fecha_cierre      DateTime?    @db.Date
-
-  perfil_empresa      PerfilEmpresa        @relation(fields: [id_empresas], references: [id_empresas], onDelete: Cascade)
-  habilidades_ofertas HabilidadesOfertas[]
-  matches             Matches[]
-  reportes            Reportes[]
-
-  @@map("ofertas")
-}
-
-// ─── HABILIDADES OFERTA ───────────────────────────────────────────────
-
-model HabilidadesOfertas {
-  id_habiOfertas Int     @id @default(autoincrement())
-  id_ofertas     Int
-  id_habilidades Int
-  nivelRequerido String  @db.VarChar(50)
-  obligatoria    Boolean @default(false)
-
-  oferta    Ofertas     @relation(fields: [id_ofertas],     references: [id_ofertas],     onDelete: Cascade)
-  habilidad Habilidades @relation(fields: [id_habilidades], references: [id_habilidades])
-
-  @@unique([id_ofertas, id_habilidades])
-  @@map("habilidades_ofertas")
-}
-
-// ─── MATCHES ──────────────────────────────────────────────────────────
-
-model Matches {
-  id_match       Int         @id @default(autoincrement())
-  id_usuarios    String      @db.VarChar(10)
-  id_ofertas     Int
-  compatibilidad Decimal     @db.Decimal(5, 2)
-  estadoUsuario  EstadoMatch @default(pendiente)
-  estadoEmpresa  EstadoMatch @default(pendiente)
-  fechaMatch     DateTime    @default(now())
-  cv_url         String?     @db.VarChar(255)  // CV al momento del like
-
-  usuario  Usuario    @relation(fields: [id_usuarios], references: [id_usuarios], onDelete: Cascade)
-  oferta   Ofertas    @relation(fields: [id_ofertas],  references: [id_ofertas],  onDelete: Cascade)
-  mensajes Mensajes[]
-  resenas  Resenas[]
-
-  @@unique([id_usuarios, id_ofertas])
-  @@map("matches")
-}
-
-// ─── MENSAJES ─────────────────────────────────────────────────────────
-
-model Mensajes {
-  id_mensajes    Int           @id @default(autoincrement())
-  id_match       Int?
-  id_usuario     String        @db.VarChar(10)
-  contenido      String        @db.Text
-  fecha_envio    DateTime      @default(now())
-  leido          Boolean       @default(false)
-  conversacionId String?
-
-  match        Matches?      @relation(fields: [id_match], references: [id_match], onDelete: Cascade, onUpdate: Cascade)
-  usuario      Usuario       @relation(fields: [id_usuario], references: [id_usuarios], onDelete: Cascade)
-  conversacion Conversacion? @relation(fields: [conversacionId], references: [id], onDelete: Cascade)
-
-  @@index([id_match, fecha_envio])
-  @@map("mensajes")
-}
-
-// ─── CONVERSACIONES ───────────────────────────────────────────────────
-
-model Conversacion {
-  id            String      @id @default(uuid())
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  participantes Usuario[]
-  mensajes      Mensajes[]
-
-  @@map("conversaciones")
-}
-
-// ─── NOTIFICACIONES ───────────────────────────────────────────────────
-
-model Notificaciones {
-  id_notificaciones Int              @id @default(autoincrement())
-  id_usuario        String           @db.VarChar(10)
-  tipo              TipoNotificacion
-  payload           Json
-  leido             Boolean          @default(false)
-  fecha_creacion    DateTime         @default(now())
-
-  usuario Usuario @relation(fields: [id_usuario], references: [id_usuarios], onDelete: Cascade)
-
-  @@index([id_usuario, leido])
-  @@map("notificaciones")
-}
-
-// ─── RESEÑAS ──────────────────────────────────────────────────────────
-
-model Resenas {
-  id_resena   Int      @id @default(autoincrement())
-  id_enviado  String   @db.VarChar(10)
-  id_recibido String   @db.VarChar(10)
-  id_match    Int
-  raiting     Decimal  @db.Decimal(2, 1)
-  comentario  String?  @db.Text
-  fecha_envio DateTime @default(now())
-
-  autor    Usuario @relation("resenas_enviadas",  fields: [id_enviado],  references: [id_usuarios])
-  receptor Usuario @relation("resenas_recibidas", fields: [id_recibido], references: [id_usuarios])
-  match    Matches @relation(fields: [id_match], references: [id_match])
-  reportes Reportes[]
-
-  @@unique([id_enviado, id_match])
-  @@map("resenas")
-}
-
-// REPORTES
-
-model Reportes {
-  id_reporte   Int                @id @default(autoincrement())
-  id_reportante String            @db.VarChar(10)
-  tipo_entidad  TipoEntidadReporte
-  motivo        MotivoReporte
-  comentario    String?           @db.Text
-  estado        EstadoReporte     @default(pendiente)
-  nota_admin    String?           @db.Text
-  fecha_creacion DateTime         @default(now())
-
-  id_usuario_reportado String?   @db.VarChar(10)
-  id_oferta_reportada  Int?
-  id_resena_reportada  Int?
-
-  // Relaciones
-  reportante         Usuario   @relation("reportes_enviados",   fields: [id_reportante],        references: [id_usuarios], onDelete: Cascade)
-  usuario_reportado  Usuario?  @relation("reportes_recibidos",  fields: [id_usuario_reportado],  references: [id_usuarios], onDelete: Cascade)
-  oferta_reportada   Ofertas?  @relation(fields: [id_oferta_reportada],  references: [id_ofertas],  onDelete: Cascade)
-  resena_reportada   Resenas?  @relation(fields: [id_resena_reportada],  references: [id_resena],   onDelete: Cascade)
-
-  @@index([estado, fecha_creacion])
-  @@map("reportes")
-}
-
